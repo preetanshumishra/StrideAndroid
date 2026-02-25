@@ -1,0 +1,53 @@
+package com.preetanshumishra.stride.data.local
+
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import javax.inject.Singleton
+
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("auth_prefs")
+
+@Singleton
+class TokenManager(
+    private val context: Context
+) {
+    companion object {
+        private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
+        private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+    }
+
+    suspend fun saveTokens(accessToken: String, refreshToken: String) {
+        context.dataStore.edit { prefs ->
+            prefs[ACCESS_TOKEN_KEY] = accessToken
+            prefs[REFRESH_TOKEN_KEY] = refreshToken
+        }
+    }
+
+    fun getAccessToken(): Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[ACCESS_TOKEN_KEY]
+    }
+
+    suspend fun getAccessTokenSync(): String? {
+        return context.dataStore.data.first()[ACCESS_TOKEN_KEY]
+    }
+
+    fun getRefreshToken(): Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[REFRESH_TOKEN_KEY]
+    }
+
+    suspend fun getRefreshTokenSync(): String? {
+        return context.dataStore.data.first()[REFRESH_TOKEN_KEY]
+    }
+
+    suspend fun clearTokens() {
+        context.dataStore.edit { prefs ->
+            prefs.clear()
+        }
+    }
+}

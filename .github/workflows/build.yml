@@ -1,0 +1,43 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  build-android:
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      - name: Configure Gradle for CI memory limits
+        run: |
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1g -Dkotlin.daemon.jvm.options=-Xmx3g
+          org.gradle.parallel=false
+          org.gradle.workers.max=1
+          org.gradle.daemon=false
+          EOF
+
+      - name: Build Release APK
+        env:
+          JAVA_TOOL_OPTIONS: -Xmx8g -XX:MaxMetaspaceSize=1g
+        run: ./gradlew clean assembleRelease --stacktrace
