@@ -243,15 +243,12 @@ Install/Update with:
 ### Environment
 Update backend API URL in `AppModule.kt`:
 ```kotlin
-private const val BASE_URL = "http://10.0.2.2:5001" // Emulator
+private const val BASE_URL = "http://10.0.2.2:5001/" // Emulator (local)
 // or
-private const val BASE_URL = "http://localhost:5001" // Physical device
+private const val BASE_URL = "https://strideapi-1048111785674.us-central1.run.app" // Production
 ```
 
-For production:
-```kotlin
-private const val BASE_URL = "https://your-stride-api.com"
-```
+The app currently uses the production Cloud Run URL by default.
 
 ### Build Configuration
 Minimum SDK is configured in `app/build.gradle.kts`:
