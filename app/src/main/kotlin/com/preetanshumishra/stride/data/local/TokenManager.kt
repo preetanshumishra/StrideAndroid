@@ -7,6 +7,9 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Singleton
@@ -20,6 +23,13 @@ class TokenManager(
     companion object {
         private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+    }
+
+    private val _tokenRefreshFailed = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val tokenRefreshFailed: SharedFlow<Unit> = _tokenRefreshFailed.asSharedFlow()
+
+    fun onRefreshFailed() {
+        _tokenRefreshFailed.tryEmit(Unit)
     }
 
     suspend fun saveTokens(accessToken: String, refreshToken: String) {

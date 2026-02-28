@@ -1,6 +1,7 @@
 package com.preetanshumishra.stride.services
 
 import com.preetanshumishra.stride.data.models.Errand
+import com.preetanshumishra.stride.data.models.ErrandRequest
 import com.preetanshumishra.stride.data.network.ApiService
 import com.preetanshumishra.stride.utils.Resource
 import javax.inject.Inject
@@ -17,6 +18,32 @@ class ErrandService @Inject constructor(
                 Resource.Success(response.data)
             } else {
                 Resource.Error(response.message ?: "Failed to fetch errands")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "Network error")
+        }
+    }
+
+    suspend fun createErrand(request: ErrandRequest): Resource<Errand> {
+        return try {
+            val response = apiService.createErrand(request)
+            if (response.status == "success" && response.data != null) {
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message ?: "Failed to create errand")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "Network error")
+        }
+    }
+
+    suspend fun updateErrand(id: String, request: ErrandRequest): Resource<Errand> {
+        return try {
+            val response = apiService.updateErrand(id, request)
+            if (response.status == "success" && response.data != null) {
+                Resource.Success(response.data)
+            } else {
+                Resource.Error(response.message ?: "Failed to update errand")
             }
         } catch (e: Exception) {
             Resource.Error(e.localizedMessage ?: "Network error")

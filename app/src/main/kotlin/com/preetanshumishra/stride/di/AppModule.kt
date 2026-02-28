@@ -3,7 +3,12 @@ package com.preetanshumishra.stride.di
 import android.content.Context
 import com.preetanshumishra.stride.data.local.TokenManager
 import com.preetanshumishra.stride.data.network.ApiService
+import com.preetanshumishra.stride.data.network.TokenAuthenticator
 import com.preetanshumishra.stride.data.network.TokenInterceptor
+import com.preetanshumishra.stride.services.NearbyService
+import com.preetanshumishra.stride.services.PlaceService
+import com.preetanshumishra.stride.utils.LocationHelper
+import com.preetanshumishra.stride.utils.WoosmapManager
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -16,7 +21,7 @@ import javax.inject.Singleton
 @Module
 object AppModule {
 
-    private const val BASE_URL = "http://10.0.2.2:5001/"
+    private const val BASE_URL = "https://strideapi-1048111785674.us-central1.run.app/"
 
     @Provides
     @Singleton
@@ -32,7 +37,19 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(tokenInterceptor: TokenInterceptor): OkHttpClient {
+    fun provideTokenAuthenticator(tokenManager: TokenManager): TokenAuthenticator {
+        return TokenAuthenticator(tokenManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationHelper(context: Context): LocationHelper {
+        return LocationHelper(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(tokenInterceptor: TokenInterceptor, tokenAuthenticator: TokenAuthenticator): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
@@ -40,6 +57,7 @@ object AppModule {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor(tokenInterceptor)
+            .authenticator(tokenAuthenticator)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
@@ -60,5 +78,16 @@ object AppModule {
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWoosmapManager(
+        context: Context,
+        placeService: PlaceService,
+        nearbyService: NearbyService,
+        locationHelper: LocationHelper
+    ): WoosmapManager {
+        return WoosmapManager(context, placeService, nearbyService, locationHelper)
     }
 }

@@ -2,11 +2,17 @@ package com.preetanshumishra.stride.data.network
 
 import com.preetanshumishra.stride.data.models.ApiResponse
 import com.preetanshumishra.stride.data.models.AuthResponse
+import com.preetanshumishra.stride.data.models.ChangePasswordRequest
 import com.preetanshumishra.stride.data.models.Errand
+import com.preetanshumishra.stride.data.models.ErrandRequest
+import com.preetanshumishra.stride.data.models.LocationRequest
 import com.preetanshumishra.stride.data.models.LoginRequest
+import com.preetanshumishra.stride.data.models.NearbyData
 import com.preetanshumishra.stride.data.models.Place
 import com.preetanshumishra.stride.data.models.PlaceCollection
+import com.preetanshumishra.stride.data.models.PlaceRequest
 import com.preetanshumishra.stride.data.models.RegisterRequest
+import com.preetanshumishra.stride.data.models.UpdateProfileRequest
 import com.preetanshumishra.stride.data.models.User
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -37,13 +43,13 @@ interface ApiService {
     suspend fun getPlaces(): ApiResponse<List<Place>>
 
     @POST("/api/v1/places")
-    suspend fun createPlace(@Body place: Map<String, Any>): ApiResponse<Place>
+    suspend fun createPlace(@Body place: PlaceRequest): ApiResponse<Place>
 
     @GET("/api/v1/places/{id}")
     suspend fun getPlace(@Path("id") id: String): ApiResponse<Place>
 
     @PUT("/api/v1/places/{id}")
-    suspend fun updatePlace(@Path("id") id: String, @Body place: Map<String, Any>): ApiResponse<Place>
+    suspend fun updatePlace(@Path("id") id: String, @Body place: PlaceRequest): ApiResponse<Place>
 
     @DELETE("/api/v1/places/{id}")
     suspend fun deletePlace(@Path("id") id: String): ApiResponse<Map<String, String>>
@@ -52,13 +58,13 @@ interface ApiService {
     suspend fun getErrands(): ApiResponse<List<Errand>>
 
     @POST("/api/v1/errands")
-    suspend fun createErrand(@Body errand: Map<String, Any>): ApiResponse<Errand>
+    suspend fun createErrand(@Body errand: ErrandRequest): ApiResponse<Errand>
 
     @GET("/api/v1/errands/{id}")
     suspend fun getErrand(@Path("id") id: String): ApiResponse<Errand>
 
     @PUT("/api/v1/errands/{id}")
-    suspend fun updateErrand(@Path("id") id: String, @Body errand: Map<String, Any>): ApiResponse<Errand>
+    suspend fun updateErrand(@Path("id") id: String, @Body errand: ErrandRequest): ApiResponse<Errand>
 
     @PATCH("/api/v1/errands/{id}/complete")
     suspend fun completeErrand(@Path("id") id: String): ApiResponse<Errand>
@@ -80,4 +86,22 @@ interface ApiService {
 
     @DELETE("/api/v1/collections/{id}")
     suspend fun deleteCollection(@Path("id") id: String): ApiResponse<Map<String, String>>
+
+    @POST("/api/v1/errands/route")
+    suspend fun getErrandRoute(@Body request: LocationRequest): ApiResponse<List<Errand>>
+
+    @POST("/api/v1/nearby")
+    suspend fun getNearby(@Body request: LocationRequest): ApiResponse<NearbyData>
+
+    @PATCH("/api/v1/places/{id}/visit")
+    suspend fun recordVisit(@Path("id") id: String): ApiResponse<Place>
+
+    @PUT("/api/v1/auth/profile")
+    suspend fun updateProfile(@Body request: UpdateProfileRequest): ApiResponse<User>
+
+    @POST("/api/v1/auth/change-password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): ApiResponse<Unit?>
+
+    @DELETE("/api/v1/auth/account")
+    suspend fun deleteAccount(): ApiResponse<Unit?>
 }

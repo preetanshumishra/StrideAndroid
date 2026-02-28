@@ -8,6 +8,7 @@ import com.preetanshumishra.stride.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class ErrandsViewModel(
@@ -23,8 +24,26 @@ class ErrandsViewModel(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    private val _statusFilter = MutableStateFlow("all")
+    val statusFilter: StateFlow<String> = _statusFilter.asStateFlow()
+
+    private val _priorityFilter = MutableStateFlow("all")
+    val priorityFilter: StateFlow<String> = _priorityFilter.asStateFlow()
+
+    private val _filteredErrands = MutableStateFlow<List<Errand>>(emptyList())
+    val filteredErrands: StateFlow<List<Errand>> = _filteredErrands.asStateFlow()
+
     init {
         loadErrands()
+        viewModelScope.launch {
+            combine(_errands, _statusFilter, _priorityFilter) { errands, status, priority ->
+                errands.filter { errand ->
+                    val statusMatch = status == "all" || errand.status == status
+                    val priorityMatch = priority == "all" || errand.priority == priority
+                    statusMatch && priorityMatch
+                }
+            }.collect { _filteredErrands.value = it }
+        }
     }
 
     fun loadErrands() {
@@ -41,6 +60,9 @@ class ErrandsViewModel(
             _isLoading.value = false
         }
     }
+
+    fun setStatusFilter(status: String) { _statusFilter.value = status }
+    fun setPriorityFilter(priority: String) { _priorityFilter.value = priority }
 
     fun completeErrand(id: String) {
         viewModelScope.launch {

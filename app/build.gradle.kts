@@ -46,6 +46,7 @@ android {
 
     lint {
         disable += "FullBackupContent"
+        disable += "InvalidFragmentVersionForActivityResult"
     }
 
     packaging {
@@ -99,6 +100,16 @@ dependencies {
     // DataStore (for encrypted preferences)
     implementation("androidx.datastore:datastore-preferences:1.2.0")
     implementation("androidx.datastore:datastore-preferences-core:1.2.0")
+
+    // Location Services
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    // Woosmap Geofencing SDK
+    implementation("com.webgeoservices.woosmapgeofencing:woosmap-mobile-sdk:4.7.7")
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
+
+    // Extended Material Icons (Folder, Navigation, etc.)
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

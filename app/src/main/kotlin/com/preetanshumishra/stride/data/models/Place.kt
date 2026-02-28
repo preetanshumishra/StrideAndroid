@@ -15,5 +15,6 @@ data class Place(
     val collectionId: String? = null,
     val visitCount: Int = 0,
     val lastVisited: String? = null,
-    val source: String = "manual"
+    val source: String = "manual",
+    val distanceKm: Double? = null
 )

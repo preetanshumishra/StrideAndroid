@@ -1,8 +1,10 @@
 package com.preetanshumishra.stride.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -15,6 +17,7 @@ import com.preetanshumishra.stride.data.models.Errand
 @Composable
 fun ErrandCard(
     errand: Errand,
+    onEdit: () -> Unit = {},
     onComplete: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -22,6 +25,7 @@ fun ErrandCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 12.dp)
+            .clickable { onEdit() }
     ) {
         Row(
             modifier = Modifier
@@ -51,10 +55,40 @@ fun ErrandCard(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
+
+                errand.deadline?.let { deadlineStr ->
+                    val displayDate = try {
+                        val instant = java.time.Instant.parse(deadlineStr)
+                        val localDate = instant.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                        val formatter = java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy")
+                        val isOverdue = localDate.isBefore(java.time.LocalDate.now()) && errand.status != "done"
+                        Pair(localDate.format(formatter), isOverdue)
+                    } catch (e: Exception) { null }
+
+                    displayDate?.let { (dateStr, isOverdue) ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.DateRange,
+                                contentDescription = null,
+                                modifier = Modifier.size(12.dp),
+                                tint = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = dateStr,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
             }
 
             Row {
-                if (errand.status != "completed") {
+                if (errand.status != "done") {
                     IconButton(
                         onClick = onComplete,
                         modifier = Modifier.size(28.dp)

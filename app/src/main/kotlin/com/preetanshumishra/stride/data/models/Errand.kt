@@ -18,5 +18,6 @@ data class Errand(
     val recurring: RecurringConfig? = null,
     val status: String = "pending",
     val completedAt: String? = null,
-    val completedAtPlaceId: String? = null
+    val completedAtPlaceId: String? = null,
+    val distanceKm: Double? = null
 )
