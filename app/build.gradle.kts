@@ -92,11 +92,6 @@ dependencies {
     implementation("com.google.dagger:dagger:2.59.1")
     ksp("com.google.dagger:dagger-compiler:2.59.1")
 
-    // Room Database
-    implementation("androidx.room:room-runtime:2.8.0")
-    implementation("androidx.room:room-ktx:2.8.0")
-    ksp("androidx.room:room-compiler:2.8.0")
-
     // DataStore (for encrypted preferences)
     implementation("androidx.datastore:datastore-preferences:1.2.0")
     implementation("androidx.datastore:datastore-preferences-core:1.2.0")
