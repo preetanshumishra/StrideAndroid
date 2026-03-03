@@ -8,13 +8,16 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.preetanshumishra.stride.data.models.Errand
+import com.preetanshumishra.stride.data.models.Place
 import com.preetanshumishra.stride.services.ErrandService
 import com.preetanshumishra.stride.services.PlaceService
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 import com.preetanshumishra.stride.viewmodel.AddEditErrandViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,16 +49,68 @@ fun AddEditErrandScreen(
     val recurringUnit by viewModel.recurringUnit.collectAsState()
     val places by viewModel.places.collectAsState()
 
-    val priorities = listOf("low", "medium", "high")
-
     LaunchedEffect(isSaved) {
         if (isSaved) onNavigateBack()
     }
 
+    AddEditErrandContent(
+        isEditing = viewModel.isEditing,
+        title = title,
+        onTitleChange = { viewModel.title.value = it },
+        category = category,
+        onCategoryChange = { viewModel.category.value = it },
+        priority = priority,
+        onPriorityChange = { viewModel.priority.value = it },
+        deadline = deadline,
+        onDeadlineChange = { viewModel.deadline.value = it },
+        linkedPlaceId = linkedPlaceId,
+        onLinkedPlaceIdChange = { viewModel.linkedPlaceId.value = it },
+        isLoading = isLoading,
+        errorMessage = errorMessage,
+        isRecurring = isRecurring,
+        onIsRecurringChange = { viewModel.isRecurring.value = it },
+        recurringInterval = recurringInterval,
+        onRecurringIntervalChange = { viewModel.recurringInterval.value = it },
+        recurringUnit = recurringUnit,
+        onRecurringUnitChange = { viewModel.recurringUnit.value = it },
+        places = places,
+        onSave = { viewModel.save() },
+        onNavigateBack = onNavigateBack
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddEditErrandContent(
+    isEditing: Boolean,
+    title: String,
+    onTitleChange: (String) -> Unit,
+    category: String,
+    onCategoryChange: (String) -> Unit,
+    priority: String,
+    onPriorityChange: (String) -> Unit,
+    deadline: String,
+    onDeadlineChange: (String) -> Unit,
+    linkedPlaceId: String,
+    onLinkedPlaceIdChange: (String) -> Unit,
+    isLoading: Boolean,
+    errorMessage: String?,
+    isRecurring: Boolean,
+    onIsRecurringChange: (Boolean) -> Unit,
+    recurringInterval: Int,
+    onRecurringIntervalChange: (Int) -> Unit,
+    recurringUnit: String,
+    onRecurringUnitChange: (String) -> Unit,
+    places: List<Place>,
+    onSave: () -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    val priorities = listOf("low", "medium", "high")
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (viewModel.isEditing) "Edit Errand" else "Add Errand") },
+                title = { Text(if (isEditing) "Edit Errand" else "Add Errand") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -77,7 +132,7 @@ fun AddEditErrandScreen(
         ) {
             OutlinedTextField(
                 value = title,
-                onValueChange = { viewModel.title.value = it },
+                onValueChange = onTitleChange,
                 label = { Text("Title *") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
@@ -85,7 +140,7 @@ fun AddEditErrandScreen(
 
             OutlinedTextField(
                 value = category,
-                onValueChange = { viewModel.category.value = it },
+                onValueChange = onCategoryChange,
                 label = { Text("Category") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
@@ -96,7 +151,7 @@ fun AddEditErrandScreen(
                 priorities.forEach { p ->
                     FilterChip(
                         selected = priority == p,
-                        onClick = { viewModel.priority.value = p },
+                        onClick = { onPriorityChange(p) },
                         label = { Text(p.replaceFirstChar { it.uppercase() }) }
                     )
                 }
@@ -104,7 +159,7 @@ fun AddEditErrandScreen(
 
             OutlinedTextField(
                 value = deadline,
-                onValueChange = { viewModel.deadline.value = it },
+                onValueChange = onDeadlineChange,
                 label = { Text("Deadline (ISO 8601, optional)") },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("e.g. 2025-12-31T00:00:00Z") },
@@ -114,7 +169,7 @@ fun AddEditErrandScreen(
             if (places.isEmpty()) {
                 OutlinedTextField(
                     value = linkedPlaceId,
-                    onValueChange = { viewModel.linkedPlaceId.value = it },
+                    onValueChange = onLinkedPlaceIdChange,
                     label = { Text("Linked Place ID (optional)") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
@@ -134,11 +189,11 @@ fun AddEditErrandScreen(
                             .menuAnchor()
                     )
                     ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        DropdownMenuItem(text = { Text("None") }, onClick = { viewModel.linkedPlaceId.value = ""; expanded = false })
+                        DropdownMenuItem(text = { Text("None") }, onClick = { onLinkedPlaceIdChange(""); expanded = false })
                         places.forEach { place ->
                             DropdownMenuItem(
                                 text = { Text(place.name) },
-                                onClick = { viewModel.linkedPlaceId.value = place.id; expanded = false }
+                                onClick = { onLinkedPlaceIdChange(place.id); expanded = false }
                             )
                         }
                     }
@@ -154,7 +209,7 @@ fun AddEditErrandScreen(
                 Text("Repeat this errand", style = MaterialTheme.typography.bodyMedium)
                 Switch(
                     checked = isRecurring,
-                    onCheckedChange = { viewModel.isRecurring.value = it }
+                    onCheckedChange = onIsRecurringChange
                 )
             }
             if (isRecurring) {
@@ -164,7 +219,7 @@ fun AddEditErrandScreen(
                 ) {
                     OutlinedTextField(
                         value = recurringInterval.toString(),
-                        onValueChange = { viewModel.recurringInterval.value = it.toIntOrNull() ?: recurringInterval },
+                        onValueChange = { onRecurringIntervalChange(it.toIntOrNull() ?: recurringInterval) },
                         label = { Text("Interval") },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
@@ -177,7 +232,7 @@ fun AddEditErrandScreen(
                         listOf("days", "weeks", "months").forEach { unit ->
                             FilterChip(
                                 selected = recurringUnit == unit,
-                                onClick = { viewModel.recurringUnit.value = unit },
+                                onClick = { onRecurringUnitChange(unit) },
                                 label = { Text(unit.replaceFirstChar { it.uppercase() }) },
                                 modifier = Modifier.padding(vertical = 2.dp)
                             )
@@ -195,7 +250,7 @@ fun AddEditErrandScreen(
             }
 
             Button(
-                onClick = { viewModel.save() },
+                onClick = onSave,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !isLoading
             ) {
@@ -210,5 +265,39 @@ fun AddEditErrandScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddEditErrandPreview() {
+    StrideTheme {
+        AddEditErrandContent(
+            isEditing = false,
+            title = "Buy groceries",
+            onTitleChange = {},
+            category = "Shopping",
+            onCategoryChange = {},
+            priority = "medium",
+            onPriorityChange = {},
+            deadline = "2025-12-31T23:59:59Z",
+            onDeadlineChange = {},
+            linkedPlaceId = "1",
+            onLinkedPlaceIdChange = {},
+            isLoading = false,
+            errorMessage = null,
+            isRecurring = true,
+            onIsRecurringChange = {},
+            recurringInterval = 7,
+            onRecurringIntervalChange = {},
+            recurringUnit = "days",
+            onRecurringUnitChange = {},
+            places = listOf(
+                Place("1", "Supermarket", "123 Main St", 0.0, 0.0),
+                Place("2", "Pharmacy", "456 Oak Ave", 0.0, 0.0)
+            ),
+            onSave = {},
+            onNavigateBack = {}
+        )
     }
 }

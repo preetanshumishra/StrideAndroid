@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,12 +28,18 @@ import com.preetanshumishra.stride.ui.screens.PlacesScreen
 import com.preetanshumishra.stride.ui.screens.RegisterScreen
 import com.preetanshumishra.stride.ui.screens.SettingsScreen
 import com.preetanshumishra.stride.ui.screens.SmartRouteScreen
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
 @Composable
 fun SetupNavGraph(authService: AuthService) {
     val isLoggedIn by authService.isLoggedIn.collectAsState()
+    SetupNavGraphContent(isLoggedIn = isLoggedIn)
+}
+
+@Composable
+fun SetupNavGraphContent(isLoggedIn: Boolean) {
     val navController = rememberNavController()
     val gson = Gson()
 
@@ -161,5 +168,13 @@ fun SetupNavGraph(authService: AuthService) {
                 popUpTo(0) { inclusive = true }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SetupNavGraphPreview() {
+    StrideTheme {
+        SetupNavGraphContent(isLoggedIn = true)
     }
 }

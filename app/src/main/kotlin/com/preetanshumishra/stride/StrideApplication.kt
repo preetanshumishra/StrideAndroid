@@ -3,8 +3,6 @@ package com.preetanshumishra.stride
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
-import android.os.Build
 import com.preetanshumishra.stride.di.AppDependencies
 import com.preetanshumishra.stride.di.DaggerAppComponent
 import com.preetanshumishra.stride.di.initializeAppDependencies
@@ -33,7 +31,7 @@ class StrideApplication : Application() {
         ).apply {
             description = "Notifications when you are near your saved places"
         }
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 }

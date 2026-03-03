@@ -9,8 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.preetanshumishra.stride.data.models.Place
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 
 @Composable
 fun PlaceCard(
@@ -113,5 +115,27 @@ fun PlaceCard(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PlaceCardPreview() {
+    StrideTheme {
+        PlaceCard(
+            place = Place(
+                id = "1",
+                name = "Central Park",
+                address = "New York, NY",
+                latitude = 40.785091,
+                longitude = -73.968285,
+                category = "Park",
+                tags = listOf("nature", "outdoor", "walking", "sightseeing"),
+                visitCount = 3
+            ),
+            onEdit = {},
+            onDelete = {},
+            onRecordVisit = {}
+        )
     }
 }

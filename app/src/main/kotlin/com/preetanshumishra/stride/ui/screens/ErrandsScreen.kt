@@ -10,25 +10,45 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
 import com.google.gson.Gson
+import com.preetanshumishra.stride.data.models.Errand
 import com.preetanshumishra.stride.ui.components.ErrandCard
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 import com.preetanshumishra.stride.viewmodel.ErrandsViewModel
 import com.preetanshumishra.stride.viewmodel.ViewModelFactory
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ErrandsScreen(navController: NavController) {
+    if (LocalInspectionMode.current) {
+        ErrandsScreenContent(
+            isLoading = false,
+            errorMessage = null,
+            statusFilter = "all",
+            priorityFilter = "all",
+            filteredErrands = emptyList(),
+            onRefresh = {},
+            onStatusFilterChange = {},
+            onPriorityFilterChange = {},
+            onAddErrand = {},
+            onEditErrand = {},
+            onCompleteErrand = {},
+            onDeleteErrand = {}
+        )
+        return
+    }
+
     val owner = LocalViewModelStoreOwner.current ?: error("No ViewModel store owner found")
     val viewModel = remember(owner) {
-        ViewModelProvider(owner.viewModelStore, ViewModelFactory()).get(ErrandsViewModel::class.java)
+        ViewModelProvider(owner.viewModelStore, ViewModelFactory())[ErrandsViewModel::class.java]
     }
-    val errands by viewModel.errands.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val statusFilter by viewModel.statusFilter.collectAsState()
@@ -41,6 +61,41 @@ fun ErrandsScreen(navController: NavController) {
         if (refresh == true) viewModel.loadErrands()
     }
 
+    ErrandsScreenContent(
+        isLoading = isLoading,
+        errorMessage = errorMessage,
+        statusFilter = statusFilter,
+        priorityFilter = priorityFilter,
+        filteredErrands = filteredErrands,
+        onRefresh = { viewModel.loadErrands() },
+        onStatusFilterChange = { viewModel.setStatusFilter(it) },
+        onPriorityFilterChange = { viewModel.setPriorityFilter(it) },
+        onAddErrand = { navController.navigate("addErrand") },
+        onEditErrand = { errand ->
+            val json = URLEncoder.encode(Gson().toJson(errand), StandardCharsets.UTF_8.toString())
+            navController.navigate("editErrand/$json")
+        },
+        onCompleteErrand = { viewModel.completeErrand(it) },
+        onDeleteErrand = { viewModel.deleteErrand(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ErrandsScreenContent(
+    isLoading: Boolean,
+    errorMessage: String?,
+    statusFilter: String,
+    priorityFilter: String,
+    filteredErrands: List<Errand>,
+    onRefresh: () -> Unit,
+    onStatusFilterChange: (String) -> Unit,
+    onPriorityFilterChange: (String) -> Unit,
+    onAddErrand: () -> Unit,
+    onEditErrand: (Errand) -> Unit,
+    onCompleteErrand: (String) -> Unit,
+    onDeleteErrand: (String) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -52,7 +107,7 @@ fun ErrandsScreen(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate("addErrand") },
+                onClick = onAddErrand,
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Errand")
@@ -61,7 +116,7 @@ fun ErrandsScreen(navController: NavController) {
     ) { paddingValues ->
         PullToRefreshBox(
             isRefreshing = isLoading,
-            onRefresh = { viewModel.loadErrands() },
+            onRefresh = onRefresh,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -99,7 +154,7 @@ fun ErrandsScreen(navController: NavController) {
                     listOf("all" to "All", "pending" to "Pending", "done" to "Done").forEach { (value, label) ->
                         FilterChip(
                             selected = statusFilter == value,
-                            onClick = { viewModel.setStatusFilter(value) },
+                            onClick = { onStatusFilterChange(value) },
                             label = { Text(label) }
                         )
                     }
@@ -114,7 +169,7 @@ fun ErrandsScreen(navController: NavController) {
                     listOf("all" to "All", "low" to "Low", "medium" to "Medium", "high" to "High").forEach { (value, label) ->
                         FilterChip(
                             selected = priorityFilter == value,
-                            onClick = { viewModel.setPriorityFilter(value) },
+                            onClick = { onPriorityFilterChange(value) },
                             label = { Text(label) }
                         )
                     }
@@ -136,17 +191,39 @@ fun ErrandsScreen(navController: NavController) {
                         items(filteredErrands) { errand ->
                             ErrandCard(
                                 errand = errand,
-                                onEdit = {
-                                    val json = URLEncoder.encode(Gson().toJson(errand), StandardCharsets.UTF_8.toString())
-                                    navController.navigate("editErrand/$json")
-                                },
-                                onComplete = { viewModel.completeErrand(errand.id) },
-                                onDelete = { viewModel.deleteErrand(errand.id) }
+                                onEdit = { onEditErrand(errand) },
+                                onComplete = { onCompleteErrand(errand.id) },
+                                onDelete = { onDeleteErrand(errand.id) }
                             )
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ErrandsScreenPreview() {
+    StrideTheme {
+        ErrandsScreenContent(
+            isLoading = false,
+            errorMessage = null,
+            statusFilter = "all",
+            priorityFilter = "all",
+            filteredErrands = listOf(
+                Errand(id = "1", title = "Buy groceries", category = "Shopping", priority = "high", status = "pending"),
+                Errand(id = "2", title = "Walk the dog", category = "Pet", priority = "medium", status = "pending"),
+                Errand(id = "3", title = "Clean the house", category = "Chore", priority = "low", status = "done")
+            ),
+            onRefresh = {},
+            onStatusFilterChange = {},
+            onPriorityFilterChange = {},
+            onAddErrand = {},
+            onEditErrand = {},
+            onCompleteErrand = {},
+            onDeleteErrand = {}
+        )
     }
 }

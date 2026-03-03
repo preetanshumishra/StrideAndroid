@@ -2,17 +2,23 @@ package com.preetanshumishra.stride.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 import com.preetanshumishra.stride.viewmodel.LoginViewModel
 import com.preetanshumishra.stride.viewmodel.ViewModelFactory
 
@@ -20,20 +26,58 @@ import com.preetanshumishra.stride.viewmodel.ViewModelFactory
 fun LoginScreen(
     navController: NavController
 ) {
+    if (LocalInspectionMode.current) {
+        LoginContent(
+            email = "",
+            password = "",
+            isLoading = false,
+            errorMessage = null,
+            onEmailChange = {},
+            onPasswordChange = {},
+            onLoginClick = {},
+            onSignUpClick = {}
+        )
+        return
+    }
+
     val owner = LocalViewModelStoreOwner.current ?: error("No ViewModel store owner found")
     val viewModel = remember(owner) {
-        ViewModelProvider(owner.viewModelStore, ViewModelFactory()).get(LoginViewModel::class.java)
+        ViewModelProvider(owner.viewModelStore, ViewModelFactory())[LoginViewModel::class.java]
     }
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
+    LoginContent(
+        email = email,
+        password = password,
+        isLoading = isLoading,
+        errorMessage = errorMessage,
+        onEmailChange = viewModel::updateEmail,
+        onPasswordChange = viewModel::updatePassword,
+        onLoginClick = viewModel::login,
+        onSignUpClick = { navController.navigate("register") }
+    )
+}
+
+@Composable
+fun LoginContent(
+    email: String,
+    password: String,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onLoginClick: () -> Unit,
+    onSignUpClick: () -> Unit
+) {
     var showPassword by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeDrawingPadding()
             .padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -54,7 +98,7 @@ fun LoginScreen(
 
         OutlinedTextField(
             value = email,
-            onValueChange = viewModel::updateEmail,
+            onValueChange = onEmailChange,
             label = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -65,26 +109,23 @@ fun LoginScreen(
 
         OutlinedTextField(
             value = password,
-            onValueChange = viewModel::updatePassword,
+            onValueChange = onPasswordChange,
             label = { Text("Password") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
+                .padding(bottom = 16.dp),
             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            singleLine = true
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            TextButton(onClick = { showPassword = !showPassword }) {
-                Text(if (showPassword) "Hide" else "Show")
+            singleLine = true,
+            trailingIcon = {
+                IconButton(onClick = { showPassword = !showPassword }) {
+                    Icon(
+                        imageVector = if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                        contentDescription = if (showPassword) "Hide password" else "Show password"
+                    )
+                }
             }
-        }
+        )
 
         errorMessage?.let { error ->
             Text(
@@ -96,7 +137,7 @@ fun LoginScreen(
         }
 
         Button(
-            onClick = { viewModel.login() },
+            onClick = onLoginClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -113,7 +154,7 @@ fun LoginScreen(
         }
 
         TextButton(
-            onClick = { navController.navigate("register") },
+            onClick = onSignUpClick,
             modifier = Modifier.padding(top = 16.dp)
         ) {
             Text("Don't have an account? ")
@@ -122,5 +163,22 @@ fun LoginScreen(
                 color = MaterialTheme.colorScheme.primary
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginPreview() {
+    StrideTheme {
+        LoginContent(
+            email = "",
+            password = "",
+            isLoading = false,
+            errorMessage = null,
+            onEmailChange = {},
+            onPasswordChange = {},
+            onLoginClick = {},
+            onSignUpClick = {}
+        )
     }
 }

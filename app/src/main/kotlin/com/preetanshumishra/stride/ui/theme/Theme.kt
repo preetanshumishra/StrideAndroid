@@ -1,10 +1,23 @@
 package com.preetanshumishra.stride.ui.theme
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF2E7D32),
@@ -65,4 +78,66 @@ fun StrideTheme(
         colorScheme = colorScheme,
         content = content
     )
+}
+
+@Preview(showBackground = true, name = "Light Theme")
+@Composable
+fun StrideThemePreview() {
+    StrideTheme(darkTheme = false) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            ThemePreviewContent()
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Theme")
+@Composable
+fun StrideThemeDarkPreview() {
+    StrideTheme(darkTheme = true) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            ThemePreviewContent()
+        }
+    }
+}
+
+@Composable
+private fun ThemePreviewContent() {
+    Column(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = "Stride Theme Preview",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        
+        Button(onClick = { }) {
+            Text("Primary Button")
+        }
+        
+        ElevatedButton(onClick = { }) {
+            Text("Elevated Button")
+        }
+        
+        OutlinedButton(onClick = { }) {
+            Text("Outlined Button")
+        }
+        
+        FloatingActionButton(onClick = { }) {
+            Text("+")
+        }
+        
+        Text(
+            text = "This text shows the onBackground color.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+    }
 }

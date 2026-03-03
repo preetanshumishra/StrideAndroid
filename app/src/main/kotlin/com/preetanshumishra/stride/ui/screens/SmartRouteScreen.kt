@@ -12,19 +12,32 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import com.preetanshumishra.stride.data.models.Errand
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 import com.preetanshumishra.stride.viewmodel.SmartRouteViewModel
 import com.preetanshumishra.stride.viewmodel.ViewModelFactory
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SmartRouteScreen() {
+    if (LocalInspectionMode.current) {
+        SmartRouteScreenContent(
+            routedErrands = emptyList(),
+            isLoading = false,
+            errorMessage = null,
+            onRefresh = {}
+        )
+        return
+    }
+
     val owner = LocalViewModelStoreOwner.current ?: error("No ViewModel store owner found")
     val viewModel = remember(owner) {
-        ViewModelProvider(owner.viewModelStore, ViewModelFactory()).get(SmartRouteViewModel::class.java)
+        ViewModelProvider(owner.viewModelStore, ViewModelFactory())[SmartRouteViewModel::class.java]
     }
     val routedErrands by viewModel.routedErrands.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -43,6 +56,24 @@ fun SmartRouteScreen() {
         }
     }
 
+    SmartRouteScreenContent(
+        routedErrands = routedErrands,
+        isLoading = isLoading,
+        errorMessage = errorMessage,
+        onRefresh = { viewModel.fetchRoute() }
+    )
+
+    LaunchedEffect(Unit) { viewModel.fetchRoute() }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SmartRouteScreenContent(
+    routedErrands: List<Errand>,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onRefresh: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -51,7 +82,7 @@ fun SmartRouteScreen() {
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
                 actions = {
-                    IconButton(onClick = { viewModel.fetchRoute() }) {
+                    IconButton(onClick = onRefresh) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }
                 }
@@ -72,9 +103,9 @@ fun SmartRouteScreen() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(text = errorMessage!!, color = MaterialTheme.colorScheme.error)
+                    Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.fetchRoute() }) { Text("Try Again") }
+                    Button(onClick = onRefresh) { Text("Try Again") }
                 }
                 routedErrands.isEmpty() -> Column(
                     modifier = Modifier.fillMaxSize(),
@@ -87,7 +118,7 @@ fun SmartRouteScreen() {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.fetchRoute() }) { Text("Get Route") }
+                    Button(onClick = onRefresh) { Text("Get Route") }
                 }
                 else -> LazyColumn(modifier = Modifier.padding(16.dp)) {
                     itemsIndexed(routedErrands) { index, errand ->
@@ -139,6 +170,21 @@ fun SmartRouteScreen() {
             }
         }
     }
+}
 
-    LaunchedEffect(Unit) { viewModel.fetchRoute() }
+@Preview(showBackground = true)
+@Composable
+fun SmartRouteScreenPreview() {
+    StrideTheme {
+        SmartRouteScreenContent(
+            routedErrands = listOf(
+                Errand(id = "1", title = "Buy Groceries", priority = "high", distanceKm = 1.2),
+                Errand(id = "2", title = "Pick up Laundry", priority = "medium", distanceKm = 2.5),
+                Errand(id = "3", title = "Drop off Package", priority = "low", distanceKm = 3.8)
+            ),
+            isLoading = false,
+            errorMessage = null,
+            onRefresh = {}
+        )
+    }
 }

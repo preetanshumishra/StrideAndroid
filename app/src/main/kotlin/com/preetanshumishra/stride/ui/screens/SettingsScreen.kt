@@ -9,21 +9,52 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 import com.preetanshumishra.stride.viewmodel.SettingsViewModel
 import com.preetanshumishra.stride.viewmodel.ViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController) {
+    if (LocalInspectionMode.current) {
+        SettingsScreenContent(
+            firstName = "John",
+            lastName = "Doe",
+            email = "john.doe@example.com",
+            currentPassword = "",
+            newPassword = "",
+            confirmPassword = "",
+            isLoading = false,
+            successMessage = null,
+            errorMessage = null,
+            showDeleteConfirm = false,
+            onFirstNameChange = {},
+            onLastNameChange = {},
+            onEmailChange = {},
+            onCurrentPasswordChange = {},
+            onNewPasswordChange = {},
+            onConfirmPasswordChange = {},
+            onSaveProfile = {},
+            onChangePassword = {},
+            onRequestDeleteAccount = {},
+            onConfirmDeleteAccount = {},
+            onDismissDeleteConfirm = {},
+            onBack = {}
+        )
+        return
+    }
+
     val owner = LocalViewModelStoreOwner.current ?: error("No ViewModel store owner found")
     val viewModel = remember(owner) {
-        ViewModelProvider(owner.viewModelStore, ViewModelFactory()).get(SettingsViewModel::class.java)
+        ViewModelProvider(owner.viewModelStore, ViewModelFactory())[SettingsViewModel::class.java]
     }
 
     val firstName by viewModel.firstName.collectAsState()
@@ -37,18 +68,70 @@ fun SettingsScreen(navController: NavController) {
     val errorMessage by viewModel.errorMessage.collectAsState()
     val showDeleteConfirm by viewModel.showDeleteConfirm.collectAsState()
 
+    SettingsScreenContent(
+        firstName = firstName,
+        lastName = lastName,
+        email = email,
+        currentPassword = currentPassword,
+        newPassword = newPassword,
+        confirmPassword = confirmPassword,
+        isLoading = isLoading,
+        successMessage = successMessage,
+        errorMessage = errorMessage,
+        showDeleteConfirm = showDeleteConfirm,
+        onFirstNameChange = { viewModel.firstName.value = it },
+        onLastNameChange = { viewModel.lastName.value = it },
+        onEmailChange = { viewModel.email.value = it },
+        onCurrentPasswordChange = { viewModel.currentPassword.value = it },
+        onNewPasswordChange = { viewModel.newPassword.value = it },
+        onConfirmPasswordChange = { viewModel.confirmPassword.value = it },
+        onSaveProfile = { viewModel.saveProfile() },
+        onChangePassword = { viewModel.changePassword() },
+        onRequestDeleteAccount = { viewModel.requestDeleteAccount() },
+        onConfirmDeleteAccount = { viewModel.confirmDeleteAccount() },
+        onDismissDeleteConfirm = { viewModel.dismissDeleteConfirm() },
+        onBack = { navController.popBackStack() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreenContent(
+    firstName: String,
+    lastName: String,
+    email: String,
+    currentPassword: String,
+    newPassword: String,
+    confirmPassword: String,
+    isLoading: Boolean,
+    successMessage: String?,
+    errorMessage: String?,
+    showDeleteConfirm: Boolean,
+    onFirstNameChange: (String) -> Unit,
+    onLastNameChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onCurrentPasswordChange: (String) -> Unit,
+    onNewPasswordChange: (String) -> Unit,
+    onConfirmPasswordChange: (String) -> Unit,
+    onSaveProfile: () -> Unit,
+    onChangePassword: () -> Unit,
+    onRequestDeleteAccount: () -> Unit,
+    onConfirmDeleteAccount: () -> Unit,
+    onDismissDeleteConfirm: () -> Unit,
+    onBack: () -> Unit
+) {
     if (showDeleteConfirm) {
         AlertDialog(
-            onDismissRequest = { viewModel.dismissDeleteConfirm() },
+            onDismissRequest = onDismissDeleteConfirm,
             title = { Text("Delete Account") },
             text = { Text("This will permanently delete your account and all data. This cannot be undone.") },
             confirmButton = {
-                TextButton(onClick = { viewModel.confirmDeleteAccount() }) {
+                TextButton(onClick = onConfirmDeleteAccount) {
                     Text("Delete", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.dismissDeleteConfirm() }) { Text("Cancel") }
+                TextButton(onClick = onDismissDeleteConfirm) { Text("Cancel") }
             }
         )
     }
@@ -58,7 +141,7 @@ fun SettingsScreen(navController: NavController) {
             TopAppBar(
                 title = { Text("Settings") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
@@ -89,39 +172,70 @@ fun SettingsScreen(navController: NavController) {
             }
 
             Text("Profile", style = MaterialTheme.typography.titleMedium)
-            OutlinedTextField(value = firstName, onValueChange = { viewModel.firstName.value = it },
+            OutlinedTextField(value = firstName, onValueChange = onFirstNameChange,
                 label = { Text("First Name") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-            OutlinedTextField(value = lastName, onValueChange = { viewModel.lastName.value = it },
+            OutlinedTextField(value = lastName, onValueChange = onLastNameChange,
                 label = { Text("Last Name") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-            OutlinedTextField(value = email, onValueChange = { viewModel.email.value = it },
+            OutlinedTextField(value = email, onValueChange = onEmailChange,
                 label = { Text("Email") }, modifier = Modifier.fillMaxWidth(), singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
-            Button(onClick = { viewModel.saveProfile() }, modifier = Modifier.fillMaxWidth(),
+            Button(onClick = onSaveProfile, modifier = Modifier.fillMaxWidth(),
                 enabled = !isLoading) { Text("Save Profile") }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             Text("Change Password", style = MaterialTheme.typography.titleMedium)
-            OutlinedTextField(value = currentPassword, onValueChange = { viewModel.currentPassword.value = it },
+            OutlinedTextField(value = currentPassword, onValueChange = onCurrentPasswordChange,
                 label = { Text("Current Password") }, modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(), singleLine = true)
-            OutlinedTextField(value = newPassword, onValueChange = { viewModel.newPassword.value = it },
+            OutlinedTextField(value = newPassword, onValueChange = onNewPasswordChange,
                 label = { Text("New Password") }, modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(), singleLine = true)
-            OutlinedTextField(value = confirmPassword, onValueChange = { viewModel.confirmPassword.value = it },
+            OutlinedTextField(value = confirmPassword, onValueChange = onConfirmPasswordChange,
                 label = { Text("Confirm New Password") }, modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(), singleLine = true)
-            Button(onClick = { viewModel.changePassword() }, modifier = Modifier.fillMaxWidth(),
+            Button(onClick = onChangePassword, modifier = Modifier.fillMaxWidth(),
                 enabled = !isLoading) { Text("Change Password") }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             Button(
-                onClick = { viewModel.requestDeleteAccount() },
+                onClick = onRequestDeleteAccount,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 enabled = !isLoading
             ) { Text("Delete Account") }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingsScreenPreview() {
+    StrideTheme {
+        SettingsScreenContent(
+            firstName = "John",
+            lastName = "Doe",
+            email = "john.doe@example.com",
+            currentPassword = "",
+            newPassword = "",
+            confirmPassword = "",
+            isLoading = false,
+            successMessage = null,
+            errorMessage = null,
+            showDeleteConfirm = false,
+            onFirstNameChange = {},
+            onLastNameChange = {},
+            onEmailChange = {},
+            onCurrentPasswordChange = {},
+            onNewPasswordChange = {},
+            onConfirmPasswordChange = {},
+            onSaveProfile = {},
+            onChangePassword = {},
+            onRequestDeleteAccount = {},
+            onConfirmDeleteAccount = {},
+            onDismissDeleteConfirm = {},
+            onBack = {}
+        )
     }
 }

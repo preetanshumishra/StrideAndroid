@@ -12,25 +12,47 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
 import com.google.gson.Gson
+import com.preetanshumishra.stride.data.models.Place
+import com.preetanshumishra.stride.data.models.PlaceCollection
 import com.preetanshumishra.stride.ui.components.PlaceCard
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 import com.preetanshumishra.stride.viewmodel.PlacesViewModel
 import com.preetanshumishra.stride.viewmodel.ViewModelFactory
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlacesScreen(navController: NavController) {
+    if (LocalInspectionMode.current) {
+        PlacesContent(
+            isLoading = false,
+            errorMessage = null,
+            searchQuery = "",
+            filteredPlaces = emptyList(),
+            collections = emptyList(),
+            collectionFilter = null,
+            onRefresh = {},
+            onAddPlace = {},
+            onSearchQueryChange = {},
+            onCollectionFilterChange = {},
+            onEditPlace = {},
+            onDeletePlace = {},
+            onRecordVisit = {}
+        )
+        return
+    }
+
     val owner = LocalViewModelStoreOwner.current ?: error("No ViewModel store owner found")
     val viewModel = remember(owner) {
-        ViewModelProvider(owner.viewModelStore, ViewModelFactory()).get(PlacesViewModel::class.java)
+        ViewModelProvider(owner.viewModelStore, ViewModelFactory())[PlacesViewModel::class.java]
     }
-    val places by viewModel.places.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -44,6 +66,43 @@ fun PlacesScreen(navController: NavController) {
         if (refresh == true) viewModel.loadPlaces()
     }
 
+    PlacesContent(
+        isLoading = isLoading,
+        errorMessage = errorMessage,
+        searchQuery = searchQuery,
+        filteredPlaces = filteredPlaces,
+        collections = collections,
+        collectionFilter = collectionFilter,
+        onRefresh = { viewModel.loadPlaces() },
+        onAddPlace = { navController.navigate("addPlace") },
+        onSearchQueryChange = { viewModel.setSearchQuery(it) },
+        onCollectionFilterChange = { viewModel.setCollectionFilter(it) },
+        onEditPlace = { place ->
+            val json = URLEncoder.encode(Gson().toJson(place), StandardCharsets.UTF_8.toString())
+            navController.navigate("editPlace/$json")
+        },
+        onDeletePlace = { viewModel.deletePlace(it) },
+        onRecordVisit = { viewModel.recordVisit(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PlacesContent(
+    isLoading: Boolean,
+    errorMessage: String?,
+    searchQuery: String,
+    filteredPlaces: List<Place>,
+    collections: List<PlaceCollection>,
+    collectionFilter: String?,
+    onRefresh: () -> Unit,
+    onAddPlace: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onCollectionFilterChange: (String?) -> Unit,
+    onEditPlace: (Place) -> Unit,
+    onDeletePlace: (String) -> Unit,
+    onRecordVisit: (String) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -55,7 +114,7 @@ fun PlacesScreen(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate("addPlace") },
+                onClick = onAddPlace,
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Place")
@@ -64,7 +123,7 @@ fun PlacesScreen(navController: NavController) {
     ) { paddingValues ->
         PullToRefreshBox(
             isRefreshing = isLoading,
-            onRefresh = { viewModel.loadPlaces() },
+            onRefresh = onRefresh,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -103,13 +162,13 @@ fun PlacesScreen(navController: NavController) {
                     ) {
                         FilterChip(
                             selected = collectionFilter == null,
-                            onClick = { viewModel.setCollectionFilter(null) },
+                            onClick = { onCollectionFilterChange(null) },
                             label = { Text("All") }
                         )
                         collections.forEach { collection ->
                             FilterChip(
                                 selected = collectionFilter == collection.id,
-                                onClick = { viewModel.setCollectionFilter(collection.id) },
+                                onClick = { onCollectionFilterChange(collection.id) },
                                 label = { Text(collection.name) }
                             )
                         }
@@ -118,7 +177,7 @@ fun PlacesScreen(navController: NavController) {
 
                 OutlinedTextField(
                     value = searchQuery,
-                    onValueChange = { viewModel.setSearchQuery(it) },
+                    onValueChange = onSearchQueryChange,
                     label = { Text("Search places") },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                     singleLine = true
@@ -140,17 +199,60 @@ fun PlacesScreen(navController: NavController) {
                         items(filteredPlaces) { place ->
                             PlaceCard(
                                 place = place,
-                                onEdit = {
-                                    val json = URLEncoder.encode(Gson().toJson(place), StandardCharsets.UTF_8.toString())
-                                    navController.navigate("editPlace/$json")
-                                },
-                                onDelete = { viewModel.deletePlace(place.id) },
-                                onRecordVisit = { viewModel.recordVisit(place.id) }
+                                onEdit = { onEditPlace(place) },
+                                onDelete = { onDeletePlace(place.id) },
+                                onRecordVisit = { onRecordVisit(place.id) }
                             )
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PlacesScreenPreview() {
+    StrideTheme {
+        PlacesContent(
+            isLoading = false,
+            errorMessage = null,
+            searchQuery = "",
+            filteredPlaces = listOf(
+                Place(
+                    id = "1",
+                    name = "Central Park",
+                    address = "New York, NY",
+                    latitude = 40.785091,
+                    longitude = -73.968285,
+                    category = "Park",
+                    tags = listOf("nature", "outdoor"),
+                    visitCount = 3
+                ),
+                Place(
+                    id = "2",
+                    name = "Joe's Coffee",
+                    address = "123 Main St",
+                    latitude = 40.712776,
+                    longitude = -74.005974,
+                    category = "Cafe",
+                    tags = listOf("coffee", "wifi"),
+                    visitCount = 1
+                )
+            ),
+            collections = listOf(
+                PlaceCollection(id = "c1", name = "Favorites"),
+                PlaceCollection(id = "c2", name = "Work")
+            ),
+            collectionFilter = null,
+            onRefresh = {},
+            onAddPlace = {},
+            onSearchQueryChange = {},
+            onCollectionFilterChange = {},
+            onEditPlace = {},
+            onDeletePlace = {},
+            onRecordVisit = {}
+        )
     }
 }

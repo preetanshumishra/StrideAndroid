@@ -12,19 +12,34 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import com.preetanshumishra.stride.data.models.Errand
+import com.preetanshumishra.stride.data.models.Place
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 import com.preetanshumishra.stride.viewmodel.NearbyViewModel
 import com.preetanshumishra.stride.viewmodel.ViewModelFactory
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NearbyScreen() {
+    if (LocalInspectionMode.current) {
+        NearbyContent(
+            nearbyPlaces = emptyList(),
+            linkedErrands = emptyList(),
+            isLoading = false,
+            errorMessage = null,
+            onRefresh = {}
+        )
+        return
+    }
+
     val owner = LocalViewModelStoreOwner.current ?: error("No ViewModel store owner found")
     val viewModel = remember(owner) {
-        ViewModelProvider(owner.viewModelStore, ViewModelFactory()).get(NearbyViewModel::class.java)
+        ViewModelProvider(owner.viewModelStore, ViewModelFactory())[NearbyViewModel::class.java]
     }
     val nearbyPlaces by viewModel.nearbyPlaces.collectAsState()
     val linkedErrands by viewModel.linkedErrands.collectAsState()
@@ -44,6 +59,26 @@ fun NearbyScreen() {
         }
     }
 
+    NearbyContent(
+        nearbyPlaces = nearbyPlaces,
+        linkedErrands = linkedErrands,
+        isLoading = isLoading,
+        errorMessage = errorMessage,
+        onRefresh = { viewModel.fetchNearby() }
+    )
+
+    LaunchedEffect(Unit) { viewModel.fetchNearby() }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NearbyContent(
+    nearbyPlaces: List<Place>,
+    linkedErrands: List<Errand>,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onRefresh: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -52,7 +87,7 @@ fun NearbyScreen() {
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
                 actions = {
-                    IconButton(onClick = { viewModel.fetchNearby() }) {
+                    IconButton(onClick = onRefresh) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }
                 }
@@ -73,9 +108,9 @@ fun NearbyScreen() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(text = errorMessage!!, color = MaterialTheme.colorScheme.error)
+                    Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.fetchNearby() }) { Text("Try Again") }
+                    Button(onClick = onRefresh) { Text("Try Again") }
                 }
                 nearbyPlaces.isEmpty() && linkedErrands.isEmpty() -> Column(
                     modifier = Modifier.fillMaxSize(),
@@ -88,7 +123,7 @@ fun NearbyScreen() {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.fetchNearby() }) { Text("Search Nearby") }
+                    Button(onClick = onRefresh) { Text("Search Nearby") }
                 }
                 else -> LazyColumn(modifier = Modifier.padding(16.dp)) {
                     if (nearbyPlaces.isNotEmpty()) {
@@ -169,6 +204,46 @@ fun NearbyScreen() {
             }
         }
     }
+}
 
-    LaunchedEffect(Unit) { viewModel.fetchNearby() }
+@Preview(showBackground = true)
+@Composable
+fun NearbyScreenPreview() {
+    StrideTheme {
+        NearbyContent(
+            nearbyPlaces = listOf(
+                Place(
+                    id = "1",
+                    name = "Starbucks",
+                    address = "123 Main St",
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    distanceKm = 0.5
+                ),
+                Place(
+                    id = "2",
+                    name = "Whole Foods",
+                    address = "456 Market St",
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    distanceKm = 1.2
+                )
+            ),
+            linkedErrands = listOf(
+                Errand(
+                    id = "1",
+                    title = "Buy Coffee",
+                    priority = "high"
+                ),
+                Errand(
+                    id = "2",
+                    title = "Get Milk",
+                    priority = "medium"
+                )
+            ),
+            isLoading = false,
+            errorMessage = null,
+            onRefresh = {}
+        )
+    }
 }

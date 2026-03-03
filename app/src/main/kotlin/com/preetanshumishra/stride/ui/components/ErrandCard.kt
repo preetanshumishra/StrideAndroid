@@ -11,8 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.preetanshumishra.stride.data.models.Errand
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 
 @Composable
 fun ErrandCard(
@@ -114,6 +116,28 @@ fun ErrandCard(
                     )
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ErrandCardPreview() {
+    StrideTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            ErrandCard(
+                errand = Errand(
+                    id = "1",
+                    title = "Buy groceries",
+                    category = "Shopping",
+                    priority = "high",
+                    deadline = "2025-12-31T23:59:59Z",
+                    status = "pending"
+                ),
+                onEdit = {},
+                onComplete = {},
+                onDelete = {}
+            )
         }
     }
 }

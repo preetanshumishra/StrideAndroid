@@ -11,25 +11,57 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
+import com.preetanshumishra.stride.data.models.User
 import com.preetanshumishra.stride.ui.components.NavigationCard
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 import com.preetanshumishra.stride.viewmodel.HomeViewModel
 import com.preetanshumishra.stride.viewmodel.ViewModelFactory
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController? = null
 ) {
+    // Check if we are in Preview mode to avoid ViewModel initialization that depends on appDependencies
+    if (LocalInspectionMode.current) {
+        HomeScreenContent(
+            user = User(
+                id = "1",
+                email = "john.doe@example.com",
+                firstName = "John",
+                lastName = "Doe"
+            ),
+            onLogout = {},
+            onNavigate = { route -> navController?.navigate(route) }
+        )
+        return
+    }
+
     val owner = LocalViewModelStoreOwner.current ?: error("No ViewModel store owner found")
     val viewModel = remember(owner) {
-        ViewModelProvider(owner.viewModelStore, ViewModelFactory()).get(HomeViewModel::class.java)
+        ViewModelProvider(owner.viewModelStore, ViewModelFactory())[HomeViewModel::class.java]
     }
     val user by viewModel.user.collectAsState()
 
+    HomeScreenContent(
+        user = user,
+        onLogout = { viewModel.logout() },
+        onNavigate = { route -> navController?.navigate(route) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreenContent(
+    user: User?,
+    onLogout: () -> Unit,
+    onNavigate: (String) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -72,43 +104,43 @@ fun HomeScreen(
             NavigationCard(
                 icon = Icons.Default.Place,
                 title = "Places",
-                onClick = { navController?.navigate("places") }
+                onClick = { onNavigate("places") }
             )
 
             NavigationCard(
                 icon = Icons.Default.DateRange,
                 title = "Errands",
-                onClick = { navController?.navigate("errands") }
+                onClick = { onNavigate("errands") }
             )
 
             NavigationCard(
                 icon = Icons.Default.Folder,
                 title = "Collections",
-                onClick = { navController?.navigate("collections") }
+                onClick = { onNavigate("collections") }
             )
 
             NavigationCard(
                 icon = Icons.Default.Navigation,
                 title = "Smart Route",
-                onClick = { navController?.navigate("smartRoute") }
+                onClick = { onNavigate("smartRoute") }
             )
 
             NavigationCard(
                 icon = Icons.Default.LocationOn,
                 title = "Nearby",
-                onClick = { navController?.navigate("nearby") }
+                onClick = { onNavigate("nearby") }
             )
 
             NavigationCard(
                 icon = Icons.Default.Settings,
                 title = "Settings",
-                onClick = { navController?.navigate("settings") }
+                onClick = { onNavigate("settings") }
             )
 
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { viewModel.logout() },
+                onClick = onLogout,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -119,5 +151,22 @@ fun HomeScreen(
                 Text("Logout")
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    StrideTheme {
+        HomeScreenContent(
+            user = User(
+                id = "1",
+                email = "john.doe@example.com",
+                firstName = "John",
+                lastName = "Doe"
+            ),
+            onLogout = {},
+            onNavigate = {}
+        )
     }
 }

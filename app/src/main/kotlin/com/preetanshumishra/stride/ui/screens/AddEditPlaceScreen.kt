@@ -10,13 +10,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.preetanshumishra.stride.data.models.Place
+import com.preetanshumishra.stride.data.models.PlaceCollection
 import com.preetanshumishra.stride.services.CollectionService
 import com.preetanshumishra.stride.services.PlaceService
+import com.preetanshumishra.stride.ui.theme.StrideTheme
 import com.preetanshumishra.stride.viewmodel.AddEditPlaceViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,10 +56,66 @@ fun AddEditPlaceScreen(
         if (isSaved) onNavigateBack()
     }
 
+    AddEditPlaceContent(
+        isEditing = viewModel.isEditing,
+        name = name,
+        onNameChange = { viewModel.name.value = it },
+        address = address,
+        onAddressChange = { viewModel.address.value = it },
+        latitudeText = latitudeText,
+        onLatitudeTextChange = { viewModel.latitudeText.value = it },
+        longitudeText = longitudeText,
+        onLongitudeTextChange = { viewModel.longitudeText.value = it },
+        category = category,
+        onCategoryChange = { viewModel.category.value = it },
+        notes = notes,
+        onNotesChange = { viewModel.notes.value = it },
+        personalRating = personalRating,
+        onRatingChange = { viewModel.personalRating.value = it },
+        tagsText = tagsText,
+        onTagsTextChange = { viewModel.tagsText.value = it },
+        collectionId = collectionId,
+        onCollectionIdChange = { viewModel.collectionId.value = it },
+        collections = collections,
+        isLoading = isLoading,
+        errorMessage = errorMessage,
+        onSaveClick = { viewModel.save() },
+        onNavigateBack = onNavigateBack
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddEditPlaceContent(
+    isEditing: Boolean,
+    name: String,
+    onNameChange: (String) -> Unit,
+    address: String,
+    onAddressChange: (String) -> Unit,
+    latitudeText: String,
+    onLatitudeTextChange: (String) -> Unit,
+    longitudeText: String,
+    onLongitudeTextChange: (String) -> Unit,
+    category: String,
+    onCategoryChange: (String) -> Unit,
+    notes: String,
+    onNotesChange: (String) -> Unit,
+    personalRating: Int,
+    onRatingChange: (Int) -> Unit,
+    tagsText: String,
+    onTagsTextChange: (String) -> Unit,
+    collectionId: String,
+    onCollectionIdChange: (String) -> Unit,
+    collections: List<PlaceCollection>,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onSaveClick: () -> Unit,
+    onNavigateBack: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (viewModel.isEditing) "Edit Place" else "Add Place") },
+                title = { Text(if (isEditing) "Edit Place" else "Add Place") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -78,7 +137,7 @@ fun AddEditPlaceScreen(
         ) {
             OutlinedTextField(
                 value = name,
-                onValueChange = { viewModel.name.value = it },
+                onValueChange = onNameChange,
                 label = { Text("Name *") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
@@ -86,7 +145,7 @@ fun AddEditPlaceScreen(
 
             OutlinedTextField(
                 value = address,
-                onValueChange = { viewModel.address.value = it },
+                onValueChange = onAddressChange,
                 label = { Text("Address *") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
@@ -95,7 +154,7 @@ fun AddEditPlaceScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = latitudeText,
-                    onValueChange = { viewModel.latitudeText.value = it },
+                    onValueChange = onLatitudeTextChange,
                     label = { Text("Latitude *") },
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -103,7 +162,7 @@ fun AddEditPlaceScreen(
                 )
                 OutlinedTextField(
                     value = longitudeText,
-                    onValueChange = { viewModel.longitudeText.value = it },
+                    onValueChange = onLongitudeTextChange,
                     label = { Text("Longitude *") },
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -113,7 +172,7 @@ fun AddEditPlaceScreen(
 
             OutlinedTextField(
                 value = category,
-                onValueChange = { viewModel.category.value = it },
+                onValueChange = onCategoryChange,
                 label = { Text("Category") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
@@ -121,7 +180,7 @@ fun AddEditPlaceScreen(
 
             OutlinedTextField(
                 value = notes,
-                onValueChange = { viewModel.notes.value = it },
+                onValueChange = onNotesChange,
                 label = { Text("Notes") },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
@@ -131,7 +190,7 @@ fun AddEditPlaceScreen(
             Text("Rating: ${if (personalRating == 0) "None" else "$personalRating / 5"}")
             Slider(
                 value = personalRating.toFloat(),
-                onValueChange = { viewModel.personalRating.value = it.toInt() },
+                onValueChange = { onRatingChange(it.toInt()) },
                 valueRange = 0f..5f,
                 steps = 4,
                 modifier = Modifier.fillMaxWidth()
@@ -139,7 +198,7 @@ fun AddEditPlaceScreen(
 
             OutlinedTextField(
                 value = tagsText,
-                onValueChange = { viewModel.tagsText.value = it },
+                onValueChange = onTagsTextChange,
                 label = { Text("Tags (comma-separated)") },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("e.g. coffee, grocery, pharmacy") },
@@ -161,11 +220,11 @@ fun AddEditPlaceScreen(
                             .menuAnchor()
                     )
                     ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        DropdownMenuItem(text = { Text("None") }, onClick = { viewModel.collectionId.value = ""; expanded = false })
+                        DropdownMenuItem(text = { Text("None") }, onClick = { onCollectionIdChange(""); expanded = false })
                         collections.forEach { collection ->
                             DropdownMenuItem(
                                 text = { Text(collection.name) },
-                                onClick = { viewModel.collectionId.value = collection.id; expanded = false }
+                                onClick = { onCollectionIdChange(collection.id); expanded = false }
                             )
                         }
                     }
@@ -181,7 +240,7 @@ fun AddEditPlaceScreen(
             }
 
             Button(
-                onClick = { viewModel.save() },
+                onClick = onSaveClick,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !isLoading
             ) {
@@ -196,5 +255,41 @@ fun AddEditPlaceScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddEditPlaceScreenPreview() {
+    StrideTheme {
+        AddEditPlaceContent(
+            isEditing = false,
+            name = "Central Park",
+            onNameChange = {},
+            address = "New York, NY",
+            onAddressChange = {},
+            latitudeText = "40.785091",
+            onLatitudeTextChange = {},
+            longitudeText = "-73.968285",
+            onLongitudeTextChange = {},
+            category = "Park",
+            onCategoryChange = {},
+            notes = "Beautiful place for a walk",
+            onNotesChange = {},
+            personalRating = 5,
+            onRatingChange = {},
+            tagsText = "nature, outdoors, recreation",
+            onTagsTextChange = {},
+            collectionId = "1",
+            onCollectionIdChange = {},
+            collections = listOf(
+                PlaceCollection("1", "Favorites", "⭐"),
+                PlaceCollection("2", "Work", "💼")
+            ),
+            isLoading = false,
+            errorMessage = null,
+            onSaveClick = {},
+            onNavigateBack = {}
+        )
     }
 }
