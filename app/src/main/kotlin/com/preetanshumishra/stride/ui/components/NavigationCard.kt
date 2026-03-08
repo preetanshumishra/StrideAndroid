@@ -20,35 +20,24 @@ import com.preetanshumishra.stride.ui.theme.StrideTheme
 fun NavigationCard(
     icon: ImageVector,
     title: String,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
+    onClick: () -> Unit) {
+    Card(modifier = Modifier
+        .fillMaxWidth()
+        .padding(bottom = 12.dp)
+        .clickable(onClick = onClick)) {
+        Row(modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 12.dp)
-            .clickable(onClick = onClick)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = icon,
+            .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Icon(imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
-            Text(
-                text = title,
+                modifier = Modifier.size(24.dp))
+            Text(text = title,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 16.dp)
-            )
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Navigate"
-            )
+                    .padding(start = 16.dp))
+            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = "Navigate")
         }
     }
 }
@@ -61,8 +50,7 @@ fun NavigationCardPreview() {
             NavigationCard(
                 icon = Icons.Default.Home,
                 title = "Home",
-                onClick = {}
-            )
+                onClick = {})
         }
     }
 }

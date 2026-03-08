@@ -18,7 +18,7 @@ Stride Android is a native Android app providing intelligent errand and place ma
 - **Storage:** DataStore 1.2.0
 - **Location SDK:** Woosmap Geofencing SDK — visit detection + custom geofencing
 - **Notifications:** NotificationCompat — local push alerts on geofence entry
-- **Build System:** Gradle 8.13
+- **Build System:** Gradle 9.3.1
 
 ## Project Structure
 
@@ -111,7 +111,7 @@ StrideAndroid/
 - Android Studio 2024.1 or later
 - Android SDK 36
 - JDK 17 or later
-- Gradle 8.13 or later
+- Gradle 9.3.1 or later
 
 ### Installation
 

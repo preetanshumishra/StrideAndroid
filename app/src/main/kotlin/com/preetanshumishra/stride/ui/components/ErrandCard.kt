@@ -21,27 +21,23 @@ fun ErrandCard(
     errand: Errand,
     onEdit: () -> Unit = {},
     onComplete: () -> Unit,
-    onDelete: () -> Unit
-) {
+    onDelete: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 12.dp)
-            .clickable { onEdit() }
-    ) {
+            .clickable { onEdit() }) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = errand.title,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                    fontWeight = FontWeight.Bold)
 
                 errand.category?.let {
                     Text(
@@ -61,29 +57,30 @@ fun ErrandCard(
                 errand.deadline?.let { deadlineStr ->
                     val displayDate = try {
                         val instant = java.time.Instant.parse(deadlineStr)
-                        val localDate = instant.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                        val localDate =
+                            instant.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
                         val formatter = java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy")
-                        val isOverdue = localDate.isBefore(java.time.LocalDate.now()) && errand.status != "done"
+                        val isOverdue =
+                            localDate.isBefore(java.time.LocalDate.now()) && errand.status != "done"
                         Pair(localDate.format(formatter), isOverdue)
-                    } catch (e: Exception) { null }
+                    } catch (e: Exception) {
+                        null
+                    }
 
                     displayDate?.let { (dateStr, isOverdue) ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = 4.dp)
-                        ) {
+                            modifier = Modifier.padding(top = 4.dp)) {
                             Icon(
                                 imageVector = Icons.Default.DateRange,
                                 contentDescription = null,
                                 modifier = Modifier.size(12.dp),
-                                tint = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                                tint = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = dateStr,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                                color = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -93,8 +90,7 @@ fun ErrandCard(
                 if (errand.status != "done") {
                     IconButton(
                         onClick = onComplete,
-                        modifier = Modifier.size(28.dp)
-                    ) {
+                        modifier = Modifier.size(28.dp)) {
                         Icon(
                             Icons.Default.Check,
                             contentDescription = "Complete",
@@ -106,14 +102,12 @@ fun ErrandCard(
 
                 IconButton(
                     onClick = onDelete,
-                    modifier = Modifier.size(28.dp)
-                ) {
+                    modifier = Modifier.size(28.dp)) {
                     Icon(
                         Icons.Default.Delete,
                         contentDescription = "Delete",
                         modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.error
-                    )
+                        tint = MaterialTheme.colorScheme.error)
                 }
             }
         }
