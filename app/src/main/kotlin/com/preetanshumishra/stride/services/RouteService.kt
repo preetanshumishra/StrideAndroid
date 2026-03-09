@@ -9,8 +9,7 @@ import javax.inject.Singleton
 
 @Singleton
 class RouteService @Inject constructor(
-    private val apiService: ApiService
-) {
+    private val apiService: ApiService) {
     suspend fun getRoute(latitude: Double, longitude: Double): Resource<List<Errand>> {
         return try {
             val response = apiService.getErrandRoute(LocationRequest(latitude, longitude))

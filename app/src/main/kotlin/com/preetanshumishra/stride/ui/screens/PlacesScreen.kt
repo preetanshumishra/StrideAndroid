@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -38,14 +39,14 @@ fun PlacesScreen(navController: NavController) {
             filteredPlaces = emptyList(),
             collections = emptyList(),
             collectionFilter = null,
+            onBack = {},
             onRefresh = {},
             onAddPlace = {},
             onSearchQueryChange = {},
             onCollectionFilterChange = {},
             onEditPlace = {},
             onDeletePlace = {},
-            onRecordVisit = {}
-        )
+            onRecordVisit = {})
         return
     }
 
@@ -73,6 +74,7 @@ fun PlacesScreen(navController: NavController) {
         filteredPlaces = filteredPlaces,
         collections = collections,
         collectionFilter = collectionFilter,
+        onBack = { navController.popBackStack() },
         onRefresh = { viewModel.loadPlaces() },
         onAddPlace = { navController.navigate("addPlace") },
         onSearchQueryChange = { viewModel.setSearchQuery(it) },
@@ -82,8 +84,7 @@ fun PlacesScreen(navController: NavController) {
             navController.navigate("editPlace/$json")
         },
         onDeletePlace = { viewModel.deletePlace(it) },
-        onRecordVisit = { viewModel.recordVisit(it) }
-    )
+        onRecordVisit = { viewModel.recordVisit(it) })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,82 +96,73 @@ fun PlacesContent(
     filteredPlaces: List<Place>,
     collections: List<PlaceCollection>,
     collectionFilter: String?,
+    onBack: () -> Unit,
     onRefresh: () -> Unit,
     onAddPlace: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onCollectionFilterChange: (String?) -> Unit,
     onEditPlace: (Place) -> Unit,
     onDeletePlace: (String) -> Unit,
-    onRecordVisit: (String) -> Unit
-) {
+    onRecordVisit: (String) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Places") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            )
+                    containerColor = MaterialTheme.colorScheme.primaryContainer))
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddPlace,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
+                containerColor = MaterialTheme.colorScheme.primary) {
                 Icon(Icons.Default.Add, contentDescription = "Add Place")
             }
-        }
-    ) { paddingValues ->
+        }) { paddingValues ->
         PullToRefreshBox(
             isRefreshing = isLoading,
             onRefresh = onRefresh,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
+                .padding(paddingValues)) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)) {
                 errorMessage?.let { error ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer
-                        )
-                    ) {
+                            containerColor = MaterialTheme.colorScheme.errorContainer)) {
                         Text(
                             text = error,
                             color = MaterialTheme.colorScheme.onErrorContainer,
                             modifier = Modifier.padding(12.dp),
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                            style = MaterialTheme.typography.bodySmall)
                     }
                 }
 
                 if (collections.isNotEmpty()) {
                     val scrollState = rememberScrollState()
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(scrollState)
-                            .padding(bottom = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(scrollState)
+                        .padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(
                             selected = collectionFilter == null,
                             onClick = { onCollectionFilterChange(null) },
-                            label = { Text("All") }
-                        )
+                            label = { Text("All") })
                         collections.forEach { collection ->
                             FilterChip(
                                 selected = collectionFilter == collection.id,
                                 onClick = { onCollectionFilterChange(collection.id) },
-                                label = { Text(collection.name) }
-                            )
+                                label = { Text(collection.name) })
                         }
                     }
                 }
@@ -180,19 +172,16 @@ fun PlacesContent(
                     onValueChange = onSearchQueryChange,
                     label = { Text("Search places") },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    singleLine = true
-                )
+                    singleLine = true)
 
                 if (filteredPlaces.isEmpty() && !isLoading) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                        contentAlignment = Alignment.Center) {
                         Text(
                             text = "No places saved yet",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
                     LazyColumn {
@@ -219,6 +208,7 @@ fun PlacesScreenPreview() {
             isLoading = false,
             errorMessage = null,
             searchQuery = "",
+            onBack = {},
             filteredPlaces = listOf(
                 Place(
                     id = "1",
@@ -228,8 +218,7 @@ fun PlacesScreenPreview() {
                     longitude = -73.968285,
                     category = "Park",
                     tags = listOf("nature", "outdoor"),
-                    visitCount = 3
-                ),
+                    visitCount = 3),
                 Place(
                     id = "2",
                     name = "Joe's Coffee",
@@ -238,13 +227,10 @@ fun PlacesScreenPreview() {
                     longitude = -74.005974,
                     category = "Cafe",
                     tags = listOf("coffee", "wifi"),
-                    visitCount = 1
-                )
-            ),
+                    visitCount = 1)),
             collections = listOf(
                 PlaceCollection(id = "c1", name = "Favorites"),
-                PlaceCollection(id = "c2", name = "Work")
-            ),
+                PlaceCollection(id = "c2", name = "Work")),
             collectionFilter = null,
             onRefresh = {},
             onAddPlace = {},
@@ -252,7 +238,6 @@ fun PlacesScreenPreview() {
             onCollectionFilterChange = {},
             onEditPlace = {},
             onDeletePlace = {},
-            onRecordVisit = {}
-        )
+            onRecordVisit = {})
     }
 }

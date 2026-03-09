@@ -110,13 +110,11 @@ fun StrideThemeDarkPreview() {
 private fun ThemePreviewContent() {
     Column(
         modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+        verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
             text = "Stride Theme Preview",
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+            color = MaterialTheme.colorScheme.onBackground)
         
         Button(onClick = { }) {
             Text("Primary Button")

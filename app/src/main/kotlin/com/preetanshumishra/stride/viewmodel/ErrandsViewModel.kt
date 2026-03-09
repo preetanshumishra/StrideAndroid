@@ -12,8 +12,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class ErrandsViewModel(
-    private val errandService: ErrandService
-) : ViewModel() {
+    private val errandService: ErrandService) : ViewModel() {
 
     private val _errands = MutableStateFlow<List<Errand>>(emptyList())
     val errands: StateFlow<List<Errand>> = _errands.asStateFlow()

@@ -13,8 +13,7 @@ import kotlinx.coroutines.launch
 
 class SmartRouteViewModel(
     private val routeService: RouteService,
-    private val locationHelper: LocationHelper
-) : ViewModel() {
+    private val locationHelper: LocationHelper) : ViewModel() {
 
     private val _routedErrands = MutableStateFlow<List<Errand>>(emptyList())
     val routedErrands: StateFlow<List<Errand>> = _routedErrands.asStateFlow()

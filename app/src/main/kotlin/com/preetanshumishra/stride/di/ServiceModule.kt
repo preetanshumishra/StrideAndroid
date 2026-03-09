@@ -19,8 +19,7 @@ object ServiceModule {
     @Singleton
     fun provideAuthService(
         apiService: ApiService,
-        tokenManager: TokenManager
-    ): AuthService {
+        tokenManager: TokenManager): AuthService {
         return AuthService(apiService, tokenManager)
     }
 

@@ -26,15 +26,13 @@ fun AddEditErrandScreen(
     existingErrand: Errand?,
     errandService: ErrandService,
     placeService: PlaceService,
-    onNavigateBack: () -> Unit
-) {
+    onNavigateBack: () -> Unit) {
     val viewModel: AddEditErrandViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T =
                 AddEditErrandViewModel(errandService, existingErrand, placeService) as T
-        }
-    )
+        })
 
     val title by viewModel.title.collectAsState()
     val category by viewModel.category.collectAsState()
@@ -75,8 +73,7 @@ fun AddEditErrandScreen(
         onRecurringUnitChange = { viewModel.recurringUnit.value = it },
         places = places,
         onSave = { viewModel.save() },
-        onNavigateBack = onNavigateBack
-    )
+        onNavigateBack = onNavigateBack)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,8 +100,7 @@ fun AddEditErrandContent(
     onRecurringUnitChange: (String) -> Unit,
     places: List<Place>,
     onSave: () -> Unit,
-    onNavigateBack: () -> Unit
-) {
+    onNavigateBack: () -> Unit) {
     val priorities = listOf("low", "medium", "high")
 
     Scaffold(
@@ -117,34 +113,27 @@ fun AddEditErrandContent(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+                    containerColor = MaterialTheme.colorScheme.primaryContainer))
+        }) { paddingValues ->
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedTextField(
                 value = title,
                 onValueChange = onTitleChange,
                 label = { Text("Title *") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+                singleLine = true)
 
             OutlinedTextField(
                 value = category,
                 onValueChange = onCategoryChange,
                 label = { Text("Category") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+                singleLine = true)
 
             Text("Priority", style = MaterialTheme.typography.labelMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -152,8 +141,7 @@ fun AddEditErrandContent(
                     FilterChip(
                         selected = priority == p,
                         onClick = { onPriorityChange(p) },
-                        label = { Text(p.replaceFirstChar { it.uppercase() }) }
-                    )
+                        label = { Text(p.replaceFirstChar { it.uppercase() }) })
                 }
             }
 
@@ -163,8 +151,7 @@ fun AddEditErrandContent(
                 label = { Text("Deadline (ISO 8601, optional)") },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("e.g. 2025-12-31T00:00:00Z") },
-                singleLine = true
-            )
+                singleLine = true)
 
             if (places.isEmpty()) {
                 OutlinedTextField(
@@ -172,8 +159,7 @@ fun AddEditErrandContent(
                     onValueChange = onLinkedPlaceIdChange,
                     label = { Text("Linked Place ID (optional)") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
+                    singleLine = true)
             } else {
                 var expanded by remember { mutableStateOf(false) }
                 val selectedName = places.firstOrNull { it.id == linkedPlaceId }?.name ?: "None"
@@ -186,15 +172,13 @@ fun AddEditErrandContent(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
-                    )
+                            .menuAnchor())
                     ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         DropdownMenuItem(text = { Text("None") }, onClick = { onLinkedPlaceIdChange(""); expanded = false })
                         places.forEach { place ->
                             DropdownMenuItem(
                                 text = { Text(place.name) },
-                                onClick = { onLinkedPlaceIdChange(place.id); expanded = false }
-                            )
+                                onClick = { onLinkedPlaceIdChange(place.id); expanded = false })
                         }
                     }
                 }
@@ -202,21 +186,16 @@ fun AddEditErrandContent(
 
             HorizontalDivider()
             Text("Recurring", style = MaterialTheme.typography.labelMedium)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Repeat this errand", style = MaterialTheme.typography.bodyMedium)
                 Switch(
                     checked = isRecurring,
-                    onCheckedChange = onIsRecurringChange
-                )
+                    onCheckedChange = onIsRecurringChange)
             }
             if (isRecurring) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Row(modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
                         value = recurringInterval.toString(),
                         onValueChange = { onRecurringIntervalChange(it.toIntOrNull() ?: recurringInterval) },
@@ -224,9 +203,7 @@ fun AddEditErrandContent(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
-                        )
-                    )
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number))
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Unit", style = MaterialTheme.typography.labelSmall)
                         listOf("days", "weeks", "months").forEach { unit ->
@@ -234,8 +211,7 @@ fun AddEditErrandContent(
                                 selected = recurringUnit == unit,
                                 onClick = { onRecurringUnitChange(unit) },
                                 label = { Text(unit.replaceFirstChar { it.uppercase() }) },
-                                modifier = Modifier.padding(vertical = 2.dp)
-                            )
+                                modifier = Modifier.padding(vertical = 2.dp))
                         }
                     }
                 }
@@ -245,21 +221,18 @@ fun AddEditErrandContent(
                 Text(
                     text = it,
                     color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
-                )
+                    style = MaterialTheme.typography.bodySmall)
             }
 
             Button(
                 onClick = onSave,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading
-            ) {
+                enabled = !isLoading) {
                 if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                        color = MaterialTheme.colorScheme.onPrimary)
                 } else {
                     Text("Save")
                 }
@@ -294,10 +267,8 @@ fun AddEditErrandPreview() {
             onRecurringUnitChange = {},
             places = listOf(
                 Place("1", "Supermarket", "123 Main St", 0.0, 0.0),
-                Place("2", "Pharmacy", "456 Oak Ave", 0.0, 0.0)
-            ),
+                Place("2", "Pharmacy", "456 Oak Ave", 0.0, 0.0)),
             onSave = {},
-            onNavigateBack = {}
-        )
+            onNavigateBack = {})
     }
 }

@@ -14,8 +14,7 @@ import kotlinx.coroutines.launch
 
 class NearbyViewModel(
     private val nearbyService: NearbyService,
-    private val locationHelper: LocationHelper
-) : ViewModel() {
+    private val locationHelper: LocationHelper) : ViewModel() {
 
     private val _nearbyPlaces = MutableStateFlow<List<Place>>(emptyList())
     val nearbyPlaces: StateFlow<List<Place>> = _nearbyPlaces.asStateFlow()

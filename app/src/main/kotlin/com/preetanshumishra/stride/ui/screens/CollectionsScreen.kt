@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -19,6 +20,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -58,11 +60,11 @@ fun CollectionsScreen(navController: NavController) {
             collections = emptyList(),
             isLoading = false,
             errorMessage = null,
+            onBack = {},
             onRefresh = {},
             onAddClick = {},
             onEditClick = {},
-            onDeleteClick = {}
-        )
+            onDeleteClick = {})
         return
     }
 
@@ -84,6 +86,7 @@ fun CollectionsScreen(navController: NavController) {
         collections = collections,
         isLoading = isLoading,
         errorMessage = errorMessage,
+        onBack = { navController.popBackStack() },
         onRefresh = { viewModel.loadCollections() },
         onAddClick = { navController.navigate("addCollection") },
         onEditClick = { collection ->
@@ -93,8 +96,7 @@ fun CollectionsScreen(navController: NavController) {
             )
             navController.navigate("editCollection/$json")
         },
-        onDeleteClick = { collectionId -> viewModel.deleteCollection(collectionId) }
-    )
+        onDeleteClick = { collectionId -> viewModel.deleteCollection(collectionId) })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,64 +105,58 @@ private fun CollectionsContent(
     collections: List<PlaceCollection>,
     isLoading: Boolean,
     errorMessage: String?,
+    onBack: () -> Unit,
     onRefresh: () -> Unit,
     onAddClick: () -> Unit,
     onEditClick: (PlaceCollection) -> Unit,
-    onDeleteClick: (String) -> Unit
-) {
+    onDeleteClick: (String) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Collections") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            )
+                    containerColor = MaterialTheme.colorScheme.primaryContainer))
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddClick,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
+                containerColor = MaterialTheme.colorScheme.primary) {
                 Icon(Icons.Default.Add, contentDescription = "Add Collection")
             }
-        }
-    ) { paddingValues ->
+        }) { paddingValues ->
         PullToRefreshBox(
             isRefreshing = isLoading,
             onRefresh = onRefresh,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+                .padding(paddingValues)) {
             when {
-                errorMessage != null -> Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
+                errorMessage != null -> Column(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
+                    verticalArrangement = Arrangement.Center) {
                     Text(errorMessage, color = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onRefresh) { Text("Retry") }
                 }
                 collections.isEmpty() && !isLoading -> Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+                    contentAlignment = Alignment.Center) {
                     Text(
                         "No collections yet",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                else -> LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                else -> LazyColumn(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(collections, key = { it.id }) { collection ->
                         CollectionCard(
                             collection = collection,
@@ -178,8 +174,7 @@ private fun CollectionsContent(
 private fun CollectionCard(
     collection: PlaceCollection,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
-) {
+    onDelete: () -> Unit) {
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
     if (showDeleteConfirm) {
@@ -194,30 +189,25 @@ private fun CollectionCard(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }
-            }
-        )
+            })
     }
 
     Card(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     collection.name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                    fontWeight = FontWeight.Bold)
                 if (collection.icon.isNotBlank()) {
                     Text(
                         collection.icon,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             Row {
@@ -243,6 +233,7 @@ fun CollectionsScreenPreview() {
             collections = sampleCollections,
             isLoading = false,
             errorMessage = null,
+            onBack = {},
             onRefresh = {},
             onAddClick = {},
             onEditClick = {},

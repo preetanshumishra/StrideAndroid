@@ -20,8 +20,7 @@ import javax.inject.Singleton
 @Singleton
 class AuthService @Inject constructor(
     private val apiService: ApiService,
-    private val tokenManager: TokenManager
-) {
+    private val tokenManager: TokenManager) {
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
@@ -58,8 +57,7 @@ class AuthService @Inject constructor(
         email: String,
         password: String,
         firstName: String,
-        lastName: String
-    ): Resource<AuthResponse> {
+        lastName: String): Resource<AuthResponse> {
         return try {
             val request = com.preetanshumishra.stride.data.models.RegisterRequest(
                 email, password, firstName, lastName

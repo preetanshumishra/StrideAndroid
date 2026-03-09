@@ -86,35 +86,28 @@ fun RegisterScreenContent(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onSignUpClick: () -> Unit,
-    onLoginClick: () -> Unit
-) {
+    onLoginClick: () -> Unit) {
     var showPassword by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .padding(24.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .safeDrawingPadding()
+        .padding(24.dp)) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .align(Alignment.Center)
+            .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "Create Account",
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
+                modifier = Modifier.padding(bottom = 12.dp))
 
             Text(
                 text = "Join Stride to manage your errands and places",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
+                modifier = Modifier.padding(bottom = 24.dp))
 
             OutlinedTextField(
                 value = firstName,
@@ -123,8 +116,7 @@ fun RegisterScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 12.dp),
-                singleLine = true
-            )
+                singleLine = true)
 
             OutlinedTextField(
                 value = lastName,
@@ -133,8 +125,7 @@ fun RegisterScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 12.dp),
-                singleLine = true
-            )
+                singleLine = true)
 
             OutlinedTextField(
                 value = email,
@@ -144,8 +135,7 @@ fun RegisterScreenContent(
                     .fillMaxWidth()
                     .padding(bottom = 12.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true
-            )
+                singleLine = true)
 
             OutlinedTextField(
                 value = password,
@@ -161,19 +151,16 @@ fun RegisterScreenContent(
                     IconButton(onClick = { showPassword = !showPassword }) {
                         Icon(
                             imageVector = if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                            contentDescription = if (showPassword) "Hide password" else "Show password"
-                        )
+                            contentDescription = if (showPassword) "Hide password" else "Show password")
                     }
-                }
-            )
+                })
 
             errorMessage?.let { error ->
                 Text(
                     text = error,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                    modifier = Modifier.padding(bottom = 16.dp))
             }
 
             Button(
@@ -181,13 +168,11 @@ fun RegisterScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                enabled = !isLoading
-            ) {
+                enabled = !isLoading) {
                 if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                        color = MaterialTheme.colorScheme.onPrimary)
                 } else {
                     Text("Sign Up")
                 }
@@ -196,13 +181,11 @@ fun RegisterScreenContent(
 
         TextButton(
             onClick = onLoginClick,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
+            modifier = Modifier.align(Alignment.BottomCenter)) {
             Text("Already have an account? ")
             Text(
                 "Login",
-                color = MaterialTheme.colorScheme.primary
-            )
+                color = MaterialTheme.colorScheme.primary)
         }
     }
 }

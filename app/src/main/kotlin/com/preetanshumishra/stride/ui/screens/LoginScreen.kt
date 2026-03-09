@@ -24,8 +24,7 @@ import com.preetanshumishra.stride.viewmodel.ViewModelFactory
 
 @Composable
 fun LoginScreen(
-    navController: NavController
-) {
+    navController: NavController) {
     if (LocalInspectionMode.current) {
         LoginContent(
             email = "",
@@ -70,31 +69,26 @@ fun LoginContent(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit,
-    onSignUpClick: () -> Unit
-) {
+    onSignUpClick: () -> Unit) {
     var showPassword by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .padding(24.dp),
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .safeDrawingPadding()
+        .padding(24.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+        horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = "Stride",
             style = MaterialTheme.typography.displayLarge,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+            modifier = Modifier.padding(bottom = 12.dp))
 
         Text(
             text = "Smart Errands & Places",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
+            modifier = Modifier.padding(bottom = 32.dp))
 
         OutlinedTextField(
             value = email,
@@ -104,8 +98,7 @@ fun LoginContent(
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true
-        )
+            singleLine = true)
 
         OutlinedTextField(
             value = password,
@@ -121,19 +114,16 @@ fun LoginContent(
                 IconButton(onClick = { showPassword = !showPassword }) {
                     Icon(
                         imageVector = if (showPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                        contentDescription = if (showPassword) "Hide password" else "Show password"
-                    )
+                        contentDescription = if (showPassword) "Hide password" else "Show password")
                 }
-            }
-        )
+            })
 
         errorMessage?.let { error ->
             Text(
                 text = error,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+                modifier = Modifier.padding(bottom = 16.dp))
         }
 
         Button(
@@ -141,13 +131,11 @@ fun LoginContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            enabled = !isLoading && email.isNotEmpty() && password.isNotEmpty()
-        ) {
+            enabled = !isLoading && email.isNotEmpty() && password.isNotEmpty()) {
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
+                    color = MaterialTheme.colorScheme.onPrimary)
             } else {
                 Text("Login")
             }
@@ -155,13 +143,11 @@ fun LoginContent(
 
         TextButton(
             onClick = onSignUpClick,
-            modifier = Modifier.padding(top = 16.dp)
-        ) {
+            modifier = Modifier.padding(top = 16.dp)) {
             Text("Don't have an account? ")
             Text(
                 "Sign up",
-                color = MaterialTheme.colorScheme.primary
-            )
+                color = MaterialTheme.colorScheme.primary)
         }
     }
 }

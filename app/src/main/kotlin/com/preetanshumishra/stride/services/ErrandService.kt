@@ -9,8 +9,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ErrandService @Inject constructor(
-    private val apiService: ApiService
-) {
+    private val apiService: ApiService) {
     suspend fun getErrands(): Resource<List<Errand>> {
         return try {
             val response = apiService.getErrands()

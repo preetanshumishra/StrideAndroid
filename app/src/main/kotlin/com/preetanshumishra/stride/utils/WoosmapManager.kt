@@ -26,8 +26,7 @@ class WoosmapManager(
     private val context: Context,
     private val placeService: PlaceService,
     private val nearbyService: NearbyService,
-    private val locationHelper: LocationHelper
-) {
+    private val locationHelper: LocationHelper) {
     private val woosmap: Woosmap = Woosmap.getInstance().initializeWoosmap(context)
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

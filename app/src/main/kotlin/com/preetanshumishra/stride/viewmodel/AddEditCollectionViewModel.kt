@@ -12,8 +12,7 @@ import kotlinx.coroutines.launch
 
 class AddEditCollectionViewModel(
     private val collectionService: CollectionService,
-    val existingCollection: PlaceCollection? = null
-) : ViewModel() {
+    val existingCollection: PlaceCollection? = null) : ViewModel() {
 
     val name = MutableStateFlow(existingCollection?.name ?: "")
 

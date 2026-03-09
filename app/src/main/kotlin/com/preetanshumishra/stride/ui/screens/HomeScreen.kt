@@ -25,8 +25,7 @@ import com.preetanshumishra.stride.viewmodel.ViewModelFactory
 
 @Composable
 fun HomeScreen(
-    navController: NavController? = null
-) {
+    navController: NavController? = null) {
     // Check if we are in Preview mode to avoid ViewModel initialization that depends on appDependencies
     if (LocalInspectionMode.current) {
         HomeScreenContent(
@@ -34,11 +33,9 @@ fun HomeScreen(
                 id = "1",
                 email = "john.doe@example.com",
                 firstName = "John",
-                lastName = "Doe"
-            ),
+                lastName = "Doe"),
             onLogout = {},
-            onNavigate = { route -> navController?.navigate(route) }
-        )
+            onNavigate = { route -> navController?.navigate(route) })
         return
     }
 
@@ -51,8 +48,7 @@ fun HomeScreen(
     HomeScreenContent(
         user = user,
         onLogout = { viewModel.logout() },
-        onNavigate = { route -> navController?.navigate(route) }
-    )
+        onNavigate = { route -> navController?.navigate(route) })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,43 +56,31 @@ fun HomeScreen(
 fun HomeScreenContent(
     user: User?,
     onLogout: () -> Unit,
-    onNavigate: (String) -> Unit
-) {
+    onNavigate: (String) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Home") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-        ) {
+                    containerColor = MaterialTheme.colorScheme.primaryContainer))
+        }) { paddingValues ->
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .padding(16.dp)) {
             user?.let { currentUser ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                Card(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             text = "Welcome, ${currentUser.firstName}!",
-                            style = MaterialTheme.typography.headlineSmall
-                        )
+                            style = MaterialTheme.typography.headlineSmall)
                         Text(
                             text = currentUser.email,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+                            modifier = Modifier.padding(top = 4.dp))
                     }
                 }
             }
@@ -145,9 +129,7 @@ fun HomeScreenContent(
                     .fillMaxWidth()
                     .height(48.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                )
-            ) {
+                    containerColor = MaterialTheme.colorScheme.error)) {
                 Text("Logout")
             }
         }
@@ -163,10 +145,8 @@ fun HomeScreenPreview() {
                 id = "1",
                 email = "john.doe@example.com",
                 firstName = "John",
-                lastName = "Doe"
-            ),
+                lastName = "Doe"),
             onLogout = {},
-            onNavigate = {}
-        )
+            onNavigate = {})
     }
 }

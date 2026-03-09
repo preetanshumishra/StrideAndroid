@@ -38,8 +38,7 @@ class MainActivity : ComponentActivity() {
             StrideTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+                    color = MaterialTheme.colorScheme.background) {
                     SetupNavGraph(authService = authService)
                 }
             }

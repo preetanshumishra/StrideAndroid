@@ -17,8 +17,7 @@ import kotlinx.coroutines.launch
 class AddEditErrandViewModel(
     private val errandService: ErrandService,
     val existingErrand: Errand? = null,
-    private val placeService: PlaceService
-) : ViewModel() {
+    private val placeService: PlaceService) : ViewModel() {
 
     var title = MutableStateFlow(existingErrand?.title ?: "")
     var category = MutableStateFlow(existingErrand?.category ?: "")

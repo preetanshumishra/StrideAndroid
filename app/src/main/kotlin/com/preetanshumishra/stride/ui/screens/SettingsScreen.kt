@@ -47,8 +47,7 @@ fun SettingsScreen(navController: NavController) {
             onRequestDeleteAccount = {},
             onConfirmDeleteAccount = {},
             onDismissDeleteConfirm = {},
-            onBack = {}
-        )
+            onBack = {})
         return
     }
 
@@ -90,8 +89,7 @@ fun SettingsScreen(navController: NavController) {
         onRequestDeleteAccount = { viewModel.requestDeleteAccount() },
         onConfirmDeleteAccount = { viewModel.confirmDeleteAccount() },
         onDismissDeleteConfirm = { viewModel.dismissDeleteConfirm() },
-        onBack = { navController.popBackStack() }
-    )
+        onBack = { navController.popBackStack() })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,8 +116,7 @@ fun SettingsScreenContent(
     onRequestDeleteAccount: () -> Unit,
     onConfirmDeleteAccount: () -> Unit,
     onDismissDeleteConfirm: () -> Unit,
-    onBack: () -> Unit
-) {
+    onBack: () -> Unit) {
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = onDismissDeleteConfirm,
@@ -132,8 +129,7 @@ fun SettingsScreenContent(
             },
             dismissButton = {
                 TextButton(onClick = onDismissDeleteConfirm) { Text("Cancel") }
-            }
-        )
+            })
     }
 
     Scaffold(
@@ -146,19 +142,14 @@ fun SettingsScreenContent(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+                    containerColor = MaterialTheme.colorScheme.primaryContainer))
+        }) { paddingValues ->
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
             successMessage?.let {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
                     Text(it, modifier = Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
@@ -203,8 +194,7 @@ fun SettingsScreenContent(
                 onClick = onRequestDeleteAccount,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                enabled = !isLoading
-            ) { Text("Delete Account") }
+                enabled = !isLoading) { Text("Delete Account") }
         }
     }
 }
@@ -235,7 +225,6 @@ fun SettingsScreenPreview() {
             onRequestDeleteAccount = {},
             onConfirmDeleteAccount = {},
             onDismissDeleteConfirm = {},
-            onBack = {}
-        )
+            onBack = {})
     }
 }

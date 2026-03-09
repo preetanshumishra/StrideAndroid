@@ -18,8 +18,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("a
 
 @Singleton
 class TokenManager(
-    private val context: Context
-) {
+    private val context: Context) {
     companion object {
         private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")

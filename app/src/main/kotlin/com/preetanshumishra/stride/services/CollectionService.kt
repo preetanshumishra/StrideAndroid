@@ -8,8 +8,7 @@ import javax.inject.Singleton
 
 @Singleton
 class CollectionService @Inject constructor(
-    private val apiService: ApiService
-) {
+    private val apiService: ApiService) {
     suspend fun getCollections(): Resource<List<PlaceCollection>> {
         return try {
             val response = apiService.getCollections()

@@ -9,8 +9,7 @@ import javax.inject.Singleton
 
 @Singleton
 class NearbyService @Inject constructor(
-    private val apiService: ApiService
-) {
+    private val apiService: ApiService) {
     suspend fun getNearby(latitude: Double, longitude: Double, radiusKm: Double = 1.0): Resource<NearbyData> {
         return try {
             val response = apiService.getNearby(LocationRequest(latitude, longitude, radiusKm))

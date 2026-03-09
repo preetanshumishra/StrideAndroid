@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.navigation.NavController
 import com.preetanshumishra.stride.data.models.Errand
 import com.preetanshumishra.stride.data.models.Place
 import com.preetanshumishra.stride.ui.theme.StrideTheme
@@ -25,15 +27,15 @@ import com.preetanshumishra.stride.viewmodel.NearbyViewModel
 import com.preetanshumishra.stride.viewmodel.ViewModelFactory
 
 @Composable
-fun NearbyScreen() {
+fun NearbyScreen(navController: NavController) {
     if (LocalInspectionMode.current) {
         NearbyContent(
             nearbyPlaces = emptyList(),
             linkedErrands = emptyList(),
             isLoading = false,
             errorMessage = null,
-            onRefresh = {}
-        )
+            onBack = {},
+            onRefresh = {})
         return
     }
 
@@ -48,8 +50,7 @@ fun NearbyScreen() {
     val needsPermission by viewModel.needsPermission.collectAsState()
 
     val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
+        contract = ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) viewModel.permissionGranted()
     }
 
@@ -64,8 +65,8 @@ fun NearbyScreen() {
         linkedErrands = linkedErrands,
         isLoading = isLoading,
         errorMessage = errorMessage,
-        onRefresh = { viewModel.fetchNearby() }
-    )
+        onBack = { navController.popBackStack() },
+        onRefresh = { viewModel.fetchNearby() })
 
     LaunchedEffect(Unit) { viewModel.fetchNearby() }
 }
@@ -77,51 +78,46 @@ fun NearbyContent(
     linkedErrands: List<Errand>,
     isLoading: Boolean,
     errorMessage: String?,
-    onRefresh: () -> Unit
-) {
+    onBack: () -> Unit,
+    onRefresh: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Nearby") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                ),
+                    containerColor = MaterialTheme.colorScheme.primaryContainer),
                 actions = {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }
-                }
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+                })
+        }) { paddingValues ->
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)) {
             when {
                 isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                errorMessage != null -> Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
+                errorMessage != null -> Column(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
+                    verticalArrangement = Arrangement.Center) {
                     Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onRefresh) { Text("Try Again") }
                 }
-                nearbyPlaces.isEmpty() && linkedErrands.isEmpty() -> Column(
-                    modifier = Modifier.fillMaxSize(),
+                nearbyPlaces.isEmpty() && linkedErrands.isEmpty() -> Column(modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
+                    verticalArrangement = Arrangement.Center) {
                     Text(
                         text = "No places nearby",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onRefresh) { Text("Search Nearby") }
                 }
@@ -132,39 +128,31 @@ fun NearbyContent(
                                 text = "Nearby Places",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
+                                modifier = Modifier.padding(bottom = 8.dp))
                         }
                         items(nearbyPlaces) { place ->
-                            Card(
-                                modifier = Modifier
+                            Card(modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)) {
+                                Row(modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = 8.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
+                                    .padding(16.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
+                                    verticalAlignment = Alignment.CenterVertically) {
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = place.name,
                                             fontWeight = FontWeight.Bold,
-                                            style = MaterialTheme.typography.titleMedium
-                                        )
+                                            style = MaterialTheme.typography.titleMedium)
                                         Text(
                                             text = place.address,
                                             style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                     place.distanceKm?.let { dist ->
                                         SuggestionChip(
                                             onClick = {},
-                                            label = { Text(String.format("%.2f km", dist)) }
-                                        )
+                                            label = { Text(String.format("%.2f km", dist)) })
                                     }
                                 }
                             }
@@ -176,26 +164,21 @@ fun NearbyContent(
                                 text = "Errands Here",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-                            )
+                                modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
                         }
                         items(linkedErrands) { errand ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 8.dp)
-                            ) {
+                            Card(modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Text(
                                         text = errand.title,
                                         fontWeight = FontWeight.Bold,
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
+                                        style = MaterialTheme.typography.titleMedium)
                                     Text(
                                         text = errand.priority.replaceFirstChar { it.uppercase() },
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
                         }
@@ -211,6 +194,7 @@ fun NearbyContent(
 fun NearbyScreenPreview() {
     StrideTheme {
         NearbyContent(
+            onBack = {},
             nearbyPlaces = listOf(
                 Place(
                     id = "1",
@@ -218,32 +202,25 @@ fun NearbyScreenPreview() {
                     address = "123 Main St",
                     latitude = 0.0,
                     longitude = 0.0,
-                    distanceKm = 0.5
-                ),
+                    distanceKm = 0.5),
                 Place(
                     id = "2",
                     name = "Whole Foods",
                     address = "456 Market St",
                     latitude = 0.0,
                     longitude = 0.0,
-                    distanceKm = 1.2
-                )
-            ),
+                    distanceKm = 1.2)),
             linkedErrands = listOf(
                 Errand(
                     id = "1",
                     title = "Buy Coffee",
-                    priority = "high"
-                ),
+                    priority = "high"),
                 Errand(
                     id = "2",
                     title = "Get Milk",
-                    priority = "medium"
-                )
-            ),
+                    priority = "medium")),
             isLoading = false,
             errorMessage = null,
-            onRefresh = {}
-        )
+            onRefresh = {})
     }
 }

@@ -45,8 +45,7 @@ fun SetupNavGraphContent(isLoggedIn: Boolean) {
 
     NavHost(
         navController = navController,
-        startDestination = if (isLoggedIn) "home" else "login"
-    ) {
+        startDestination = if (isLoggedIn) "home" else "login") {
         composable("login") {
             LoginScreen(navController = navController)
         }
@@ -75,8 +74,7 @@ fun SetupNavGraphContent(isLoggedIn: Boolean) {
         }
         composable(
             route = "editPlace/{placeJson}",
-            arguments = listOf(navArgument("placeJson") { type = NavType.StringType })
-        ) { backStackEntry ->
+            arguments = listOf(navArgument("placeJson") { type = NavType.StringType })) { backStackEntry ->
             val encoded = backStackEntry.arguments?.getString("placeJson") ?: ""
             val json = URLDecoder.decode(encoded, StandardCharsets.UTF_8.toString())
             val place = gson.fromJson(json, Place::class.java)
@@ -102,10 +100,10 @@ fun SetupNavGraphContent(isLoggedIn: Boolean) {
             )
         }
         composable("smartRoute") {
-            SmartRouteScreen()
+            SmartRouteScreen(navController = navController)
         }
         composable("nearby") {
-            NearbyScreen()
+            NearbyScreen(navController = navController)
         }
         composable("settings") {
             SettingsScreen(navController = navController)
@@ -125,8 +123,7 @@ fun SetupNavGraphContent(isLoggedIn: Boolean) {
         }
         composable(
             route = "editCollection/{collectionJson}",
-            arguments = listOf(navArgument("collectionJson") { type = NavType.StringType })
-        ) { backStackEntry ->
+            arguments = listOf(navArgument("collectionJson") { type = NavType.StringType })) { backStackEntry ->
             val encoded = backStackEntry.arguments?.getString("collectionJson") ?: ""
             val json = URLDecoder.decode(encoded, StandardCharsets.UTF_8.toString())
             val collection = gson.fromJson(json, PlaceCollection::class.java)
@@ -141,8 +138,7 @@ fun SetupNavGraphContent(isLoggedIn: Boolean) {
         }
         composable(
             route = "editErrand/{errandJson}",
-            arguments = listOf(navArgument("errandJson") { type = NavType.StringType })
-        ) { backStackEntry ->
+            arguments = listOf(navArgument("errandJson") { type = NavType.StringType })) { backStackEntry ->
             val encoded = backStackEntry.arguments?.getString("errandJson") ?: ""
             val json = URLDecoder.decode(encoded, StandardCharsets.UTF_8.toString())
             val errand = gson.fromJson(json, Errand::class.java)

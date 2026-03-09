@@ -28,15 +28,13 @@ fun AddEditPlaceScreen(
     existingPlace: Place?,
     placeService: PlaceService,
     collectionService: CollectionService,
-    onNavigateBack: () -> Unit
-) {
+    onNavigateBack: () -> Unit) {
     val viewModel: AddEditPlaceViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T =
                 AddEditPlaceViewModel(placeService, existingPlace, collectionService) as T
-        }
-    )
+        })
 
     val name by viewModel.name.collectAsState()
     val address by viewModel.address.collectAsState()
@@ -80,8 +78,7 @@ fun AddEditPlaceScreen(
         isLoading = isLoading,
         errorMessage = errorMessage,
         onSaveClick = { viewModel.save() },
-        onNavigateBack = onNavigateBack
-    )
+        onNavigateBack = onNavigateBack)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,8 +107,7 @@ private fun AddEditPlaceContent(
     isLoading: Boolean,
     errorMessage: String?,
     onSaveClick: () -> Unit,
-    onNavigateBack: () -> Unit
-) {
+    onNavigateBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -122,34 +118,27 @@ private fun AddEditPlaceContent(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+                    containerColor = MaterialTheme.colorScheme.primaryContainer))
+        }) { paddingValues ->
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedTextField(
                 value = name,
                 onValueChange = onNameChange,
                 label = { Text("Name *") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+                singleLine = true)
 
             OutlinedTextField(
                 value = address,
                 onValueChange = onAddressChange,
                 label = { Text("Address *") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+                singleLine = true)
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
@@ -158,16 +147,14 @@ private fun AddEditPlaceContent(
                     label = { Text("Latitude *") },
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true
-                )
+                    singleLine = true)
                 OutlinedTextField(
                     value = longitudeText,
                     onValueChange = onLongitudeTextChange,
                     label = { Text("Longitude *") },
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true
-                )
+                    singleLine = true)
             }
 
             OutlinedTextField(
@@ -175,8 +162,7 @@ private fun AddEditPlaceContent(
                 onValueChange = onCategoryChange,
                 label = { Text("Category") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+                singleLine = true)
 
             OutlinedTextField(
                 value = notes,
@@ -184,8 +170,7 @@ private fun AddEditPlaceContent(
                 label = { Text("Notes") },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
-                maxLines = 5
-            )
+                maxLines = 5)
 
             Text("Rating: ${if (personalRating == 0) "None" else "$personalRating / 5"}")
             Slider(
@@ -193,8 +178,7 @@ private fun AddEditPlaceContent(
                 onValueChange = { onRatingChange(it.toInt()) },
                 valueRange = 0f..5f,
                 steps = 4,
-                modifier = Modifier.fillMaxWidth()
-            )
+                modifier = Modifier.fillMaxWidth())
 
             OutlinedTextField(
                 value = tagsText,
@@ -202,8 +186,7 @@ private fun AddEditPlaceContent(
                 label = { Text("Tags (comma-separated)") },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("e.g. coffee, grocery, pharmacy") },
-                singleLine = true
-            )
+                singleLine = true)
 
             if (collections.isNotEmpty()) {
                 var expanded by remember { mutableStateOf(false) }
@@ -217,15 +200,13 @@ private fun AddEditPlaceContent(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
-                    )
+                            .menuAnchor())
                     ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         DropdownMenuItem(text = { Text("None") }, onClick = { onCollectionIdChange(""); expanded = false })
                         collections.forEach { collection ->
                             DropdownMenuItem(
                                 text = { Text(collection.name) },
-                                onClick = { onCollectionIdChange(collection.id); expanded = false }
-                            )
+                                onClick = { onCollectionIdChange(collection.id); expanded = false })
                         }
                     }
                 }
@@ -235,21 +216,18 @@ private fun AddEditPlaceContent(
                 Text(
                     text = it,
                     color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
-                )
+                    style = MaterialTheme.typography.bodySmall)
             }
 
             Button(
                 onClick = onSaveClick,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading
-            ) {
+                enabled = !isLoading) {
                 if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                        color = MaterialTheme.colorScheme.onPrimary)
                 } else {
                     Text("Save")
                 }
@@ -284,12 +262,10 @@ fun AddEditPlaceScreenPreview() {
             onCollectionIdChange = {},
             collections = listOf(
                 PlaceCollection("1", "Favorites", "⭐"),
-                PlaceCollection("2", "Work", "💼")
-            ),
+                PlaceCollection("2", "Work", "💼")),
             isLoading = false,
             errorMessage = null,
             onSaveClick = {},
-            onNavigateBack = {}
-        )
+            onNavigateBack = {})
     }
 }

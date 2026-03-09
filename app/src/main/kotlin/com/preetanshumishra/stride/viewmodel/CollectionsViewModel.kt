@@ -11,8 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class CollectionsViewModel(
-    private val collectionService: CollectionService
-) : ViewModel() {
+    private val collectionService: CollectionService) : ViewModel() {
 
     private val _collections = MutableStateFlow<List<PlaceCollection>>(emptyList())
     val collections: StateFlow<List<PlaceCollection>> = _collections.asStateFlow()

@@ -10,8 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    private val authService: AuthService
-) : ViewModel() {
+    private val authService: AuthService) : ViewModel() {
 
     var firstName = MutableStateFlow("")
     var lastName = MutableStateFlow("")

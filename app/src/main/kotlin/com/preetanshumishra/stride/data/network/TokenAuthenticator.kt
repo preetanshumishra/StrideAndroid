@@ -13,8 +13,7 @@ import okhttp3.Route
 import javax.inject.Inject
 
 class TokenAuthenticator @Inject constructor(
-    private val tokenManager: TokenManager
-) : Authenticator {
+    private val tokenManager: TokenManager) : Authenticator {
 
     private val plainClient = OkHttpClient()
     private val baseUrl = "http://10.0.2.2:5001"

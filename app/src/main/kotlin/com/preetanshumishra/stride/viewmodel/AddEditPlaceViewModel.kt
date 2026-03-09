@@ -16,8 +16,7 @@ import kotlinx.coroutines.launch
 class AddEditPlaceViewModel(
     private val placeService: PlaceService,
     val existingPlace: Place? = null,
-    private val collectionService: CollectionService
-) : ViewModel() {
+    private val collectionService: CollectionService) : ViewModel() {
 
     var name = MutableStateFlow(existingPlace?.name ?: "")
     var address = MutableStateFlow(existingPlace?.address ?: "")

@@ -20,8 +20,7 @@ import com.preetanshumishra.stride.viewmodel.AddEditCollectionViewModel
 fun AddEditCollectionScreen(
     existingCollection: PlaceCollection?,
     collectionService: CollectionService,
-    onNavigateBack: () -> Unit
-) {
+    onNavigateBack: () -> Unit) {
     val owner = LocalViewModelStoreOwner.current ?: error("No ViewModel store owner found")
     val viewModel = remember(owner) {
         ViewModelProvider(owner.viewModelStore, object : ViewModelProvider.Factory {
@@ -29,8 +28,7 @@ fun AddEditCollectionScreen(
                 @Suppress("UNCHECKED_CAST")
                 return AddEditCollectionViewModel(
                     collectionService,
-                    existingCollection
-                ) as T
+                    existingCollection) as T
             }
         })[AddEditCollectionViewModel::class.java]
     }
@@ -51,8 +49,7 @@ fun AddEditCollectionScreen(
         isEditing = viewModel.isEditing,
         onNameChange = { viewModel.name.value = it },
         onSave = { viewModel.save() },
-        onNavigateBack = onNavigateBack
-    )
+        onNavigateBack = onNavigateBack)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,8 +61,7 @@ private fun AddEditCollectionContent(
     isEditing: Boolean,
     onNameChange: (String) -> Unit,
     onSave: () -> Unit,
-    onNavigateBack: () -> Unit
-) {
+    onNavigateBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -76,24 +72,19 @@ private fun AddEditCollectionContent(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            )
+                    containerColor = MaterialTheme.colorScheme.primaryContainer))
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
             errorMessage?.let {
                 Text(
                     it,
                     color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
-                )
+                    style = MaterialTheme.typography.bodySmall)
             }
 
             OutlinedTextField(
@@ -101,14 +92,12 @@ private fun AddEditCollectionContent(
                 onValueChange = onNameChange,
                 label = { Text("Name") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+                singleLine = true)
 
             Button(
                 onClick = onSave,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading
-            ) {
+                enabled = !isLoading) {
                 if (isLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp))
                 else Text(if (isEditing) "Save Changes" else "Add Collection")
             }
